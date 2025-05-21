@@ -1,5 +1,5 @@
-from common import *
-from Signals import Signals
+from .common import *
+from .Signals import Signals
 
 log = logging.getLogger(__name__)
 

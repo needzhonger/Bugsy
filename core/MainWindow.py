@@ -1,10 +1,10 @@
-from common import *
-from SideBar import SideBar
+from .common import *
+from .SideBar import SideBar
+from .Signals import Signals
+from .ChatWindow import ChatList
+from .FontSetting import set_font
+from .AgentSiliconFlow import MyChatAgent, model
 from functools import partial
-from Signals import Signals
-from ChatWindow import ChatList
-from FontSetting import set_font
-from AgentSiliconFlow import MyChatAgent, model
 
 log = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
-from common import *
-from Signals import Signals
-from FontSetting import set_font
+from .common import *
+from .Signals import Signals
+from .FontSetting import set_font
 
 log = logging.getLogger(__name__)
 

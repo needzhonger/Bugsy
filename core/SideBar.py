@@ -1,7 +1,7 @@
-from common import *
+from .common import *
+from .Signals import Signals
+from .FontSetting import set_font
 from functools import partial
-from Signals import Signals
-from FontSetting import set_font
 
 
 class SideBar(QFrame):
