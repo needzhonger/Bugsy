@@ -35,6 +35,7 @@ Bugsy/
 │   ├── MainWindow.py             # 主界面
 │   ├── SideBar.py                # 侧边栏
 │   ├── Signals.py                # 信号
+│   ├── __init__.py               # 初始化文件，表明core是个包
 │   └── API_KEY.env               # api密钥
 ├── requirements.txt              # 环境要求
 ├── run_bugsy.py                  # 启动入口
