@@ -26,17 +26,19 @@ Bugsy 支持三种主要输入方式：
 ## 📂 项目结构概览
 ```
 Bugsy/
-├── core/              # 核心功能模块
-│   ├── analyzer.py    # 错误分析与定位模块
-│   ├── fixer.py       # AI 修复逻辑模块
-│   ├── interface.py   # 用户交互与响应生成
-│   └── __init__.py
-├── frontend/          # （可选）Web 或 CLI 界面代码
-│   └── cli.py         # 命令行接口示例
-├── data/              # 示例代码、模型缓存等
-├── tests/             # 测试用例与验证脚本
-├── run_bugsy.py       # 启动入口
-└── README.md          # 项目说明文件
+├── core/                         # 核心功能模块
+│   ├── AgentCamel.py             # Camel AI 接口
+│   ├── AgentSiliconFlow.py       # 硅基流动 AI 接口
+│   ├── ChatWindow.py             # 聊天框
+│   ├── common.py                 # 环境配置
+│   ├── FontSetting.py            # 字体设置
+│   ├── MainWindow.py             # 主界面
+│   ├── SideBar.py                # 侧边栏
+│   ├── Signals.py                # 信号
+│   └── API_KEY.env               # api密钥
+├── requirements.txt              # 环境要求
+├── run_bugsy.py                  # 启动入口
+└── README.md                     # 项目说明文件
 ```
 
 ## 🚀 快速开始
