@@ -1,0 +1,7 @@
+# 常规库
+PySide6
+python-dotenv
+colorama
+
+# 从 GitHub 安装 camel（固定 main 分支）
+git+https://github.com/camel-ai/camel.git#egg=camel-ai
