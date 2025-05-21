@@ -3,7 +3,7 @@ from Signals import Signals
 
 log = logging.getLogger(__name__)
 
-load_dotenv(dotenv_path='.env')
+load_dotenv(dotenv_path='../API_KEY.env')
 api_key = os.getenv('API_KEY')
 
 

@@ -6,7 +6,7 @@ from camel.types import ModelPlatformType
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path='.env')
+load_dotenv(dotenv_path='API_KEY.env')
 api_key = os.getenv('API_KEY')
 
 # 定义模型

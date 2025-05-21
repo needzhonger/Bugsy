@@ -1,5 +1,5 @@
-from common import *
-from MainWindow import MainWindow
+from core.common import *
+from core.MainWindow import MainWindow
 
 
 def init_platform_style(app):

@@ -4,7 +4,7 @@ from functools import partial
 from Signals import Signals
 from ChatWindow import ChatList
 from FontSetting import set_font
-from OneAgent import MyChatAgent, model
+from AgentSiliconFlow import MyChatAgent, model
 
 log = logging.getLogger(__name__)
 
