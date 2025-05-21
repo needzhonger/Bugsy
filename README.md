@@ -73,7 +73,7 @@ Bugsy/
 
 
 2.  **启动应用**：
-    *   **先在.env文件中输入API密钥**
+    *   **先在API_KEY.env文件中输入API密钥**
     *   然后运行run_bugsy.py程序
         ```bash
         python run_bugsy.py
