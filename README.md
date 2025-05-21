@@ -44,9 +44,34 @@ Bugsy/
     *   确保你已安装Python。项目代码中使用了 f-string、类型提示等特性，推荐 **Python 3.9 及以上版本**
 
     *   安装项目依赖：
+        可以选择直接使用项目配备的requirements.txt文件：
+        ```bahs
+        pip install -r requirements.txt
+        ```
+        或依次手动安装以下各库：
+        *   **PySide6**: 用于构建图形用户界面（GUI）。
+            ```bash
+            pip install PySide6
+            ```
+
+        *   **camel-ai**: 用于调用大模型API，实现智能交互功能。
+            ```bash
+            pip install git+https://github.com/camel-ai/camel.git@main#egg=camel-ai
+            ```
+     
+        *   **dotenv**: 用于管理和加载项目中的环境变量配置，安全存储敏感信息。
+            ```bash
+            pip install python-dotenv
+            ```
+     
+        *   **colorama**: 用于在命令行界面输出彩色文本，提升信息的可读性和用户体验。
+            ```bash
+            pip install colorama
+            ```
+
 
 2.  **启动应用**：
-```
+```bash
 python run_bugsy.py
 ```
 启动后，你将进入一个图形界面，按提示词粘贴代码和题目即可获得建议。
