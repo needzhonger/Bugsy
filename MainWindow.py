@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
 
 	def __init__(self, app, width=1000, height=600):
 		super().__init__()
-		self.setWindowTitle("Programmer")
+		self.setWindowTitle("Bugsy")
 
 		# 获取屏幕尺寸，设置主窗口位置
 		self.resize(width, height)
@@ -51,87 +51,112 @@ class MainWindow(QMainWindow):
 		self.main_stack_map = {}  # 名称→索引
 
 		# 设置 main_stack各页面的内容，注意初始化顺序
+		self.chat_inputs = {}  # 页面名 -> QTextEdit
+		self.chat_lists = {}  # 页面名 -> ChatList
 		self.setup_chatting_window()  # 主界面
 
 		# 设置AI
 		self.chat_agent = MyChatAgent(model=model)
 		Signals.instance().message_to_chat_agent_signal.connect(lambda x: self.chat_agent.stream_response(x))
 
-	def setup_chatting_window(self):
-		"""
-		main_window创建
-		"""
-		self.chatting_window = QWidget()
-
-		layout = QVBoxLayout()  # 内容区域布局
+	def create_chat_window(self):
+		chat_widget = QWidget()
+		layout = QVBoxLayout()
+		chat_widget.setLayout(layout)# 内容区域布局
 		layout.setContentsMargins(20, 5, 20, 20)
-		self.chatting_window.setLayout(layout)
 
 		sidebar_btn = QPushButton('<')  # 控制侧边栏的按钮
 		sidebar_btn.setStyleSheet("""
-								QPushButton {
-								background-color: transparent;
-								border: none;
-								padding: 0;
-								margin: 0;
-								text-align: center;
-								color: #a0a0a0;
-								}
-								QPushButton:hover {
-								color: #07C160;
-								}
-								QPushButton:pressed {
-								color: #05974C;
-								}
-								""")
+										QPushButton {
+										background-color: transparent;
+										border: none;
+										padding: 0;
+										margin: 0;
+										text-align: center;
+										color: #a0a0a0;
+										}
+										QPushButton:hover {
+										color: #07C160;
+										}
+										QPushButton:pressed {
+										color: #05974C;
+										}
+										""")
 		set_font(sidebar_btn)
 		sidebar_btn.clicked.connect(partial(self.toggle_sidebar, btn=sidebar_btn))
 		layout.addWidget(sidebar_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
-		self.chat_list = ChatList()  # 对话框
-		# 连接信号，用于发消息
-		Signals.instance().chat_agent_response_signal.connect(lambda message: self.chat_list.add_message(message, False))
-		layout.addWidget(self.chat_list)
+		chat_list = ChatList()
+		Signals.instance().chat_agent_response_signal.connect(
+			lambda message: chat_list.add_message(message, False))
+		layout.addWidget(chat_list)
 
 		# 输入文本框
-		self.input_box = QTextEdit()
-		self.input_box.setMaximumHeight(100)
-		set_font(self.input_box)
-		self.input_box.setStyleSheet("""
-						            QTextEdit {
-						                background: transparent;
-						                border: none;
-						                border-radius: 5px;
-						                padding: 5px;
-						            }
-						        """)
-		layout.addWidget(self.input_box)
+		input_box = QTextEdit()
+		input_box.setMaximumHeight(100)
+		set_font(input_box)
+		input_box.setStyleSheet("""
+								            QTextEdit {
+								                background: transparent;
+								                border: none;
+								                border-radius: 5px;
+								                padding: 5px;
+								            }
+								        """)
+		layout.addWidget(input_box)
 
 		# 发送按钮
 		send_btn = QPushButton("发送")
 		send_btn.setFixedSize(100, 30)
 		set_font(send_btn)
 		send_btn.setStyleSheet("""
-				QPushButton {
-                    background-color: palette(midlight);
-                    border: none;
-                    color: #07C160;
-                    padding: 0px;
-                    text-align: center;
-                }
-                QPushButton:hover {
-                    background-color: palette(mid);
-                    border-radius: 4px;
-                }
-                QPushButton:pressed {
-					background-color: palette(mid);
-				}
-				""")
-		send_btn.clicked.connect(self.send_message)
+						QPushButton {
+		                    background-color: palette(midlight);
+		                    border: none;
+		                    color: #07C160;
+		                    padding: 0px;
+		                    text-align: center;
+		                }
+		                QPushButton:hover {
+		                    background-color: palette(mid);
+		                    border-radius: 4px;
+		                }
+		                QPushButton:pressed {
+							background-color: palette(mid);
+						}
+						""")
+		send_btn.clicked.connect(partial(self.send_message, input_box, chat_list))
 		layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
+		return chat_widget, input_box, chat_list
 
-		# 添加到stack
-		self.add_page(self.main_stack, self.chatting_window, "ChattingWindow")
+	def setup_chatting_window(self):
+		"""
+		main_window创建
+		"""
+		# 页面1
+		self.chatting_window_1, input_box1, chat_list1 = self.create_chat_window()
+		self.chat_inputs["ChattingWindow1"] = input_box1
+		self.chat_lists["ChattingWindow1"] = chat_list1
+		self.add_page(self.main_stack, self.chatting_window_1, "ChattingWindow1")
+
+		# 页面2
+		self.chatting_window_2, input_box2, chat_list2 = self.create_chat_window()
+		self.chat_inputs["ChattingWindow2"] = input_box2
+		self.chat_lists["ChattingWindow2"] = chat_list2
+		self.add_page(self.main_stack, self.chatting_window_2, "ChattingWindow2")
+
+		# 页面3
+		self.chatting_window_3, input_box3, chat_list3 = self.create_chat_window()
+		self.chat_inputs["ChattingWindow1"] = input_box3
+		self.chat_lists["ChattingWindow1"] = chat_list3
+		self.add_page(self.main_stack, self.chatting_window_3, "ChattingWindow3")
+
+		# 页面4
+		self.chatting_window_4, input_box4, chat_list4 = self.create_chat_window()
+		self.chat_inputs["ChattingWindow2"] = input_box4
+		self.chat_lists["ChattingWindow2"] = chat_list4
+		self.add_page(self.main_stack, self.chatting_window_4, "ChattingWindow4")
+
 
 	def add_page(self, stack: QStackedWidget, widget: QWidget, name: str):
 		""""
@@ -144,9 +169,23 @@ class MainWindow(QMainWindow):
 		通过名称跳转页面
 		"""
 		if name in self.main_stack_map:
-			stack.setCurrentIndex(self.main_stack_map[name])
+			current_index = stack.currentIndex()
+			target_index = self.main_stack_map[name]
+
+			if current_index == target_index:
+				# 重复点击，不切换，不清空
+				return
+
+			# 切换页面
+			stack.setCurrentIndex(target_index)
+
+			# 清空聊天内容
+			if name in self.chat_lists:
+				self.chat_lists[name].clear()  # 调用 QListWidget 的 clear 方法
+			if name in self.chat_inputs:
+				self.chat_inputs[name].clear()
 		else:
-			print(f"MainWindow @ navigate_to:错误：未知页面 {name}!")
+			print(f"MainWindow @ navigate_to: 错误：未知页面 {name}!")
 
 	def setup_sidebar_animation(self) -> None:
 		"""侧边栏展开动画设置"""
@@ -169,9 +208,8 @@ class MainWindow(QMainWindow):
 
 		self.animations["sidebar"].start()
 
-	def send_message(self):
-		"""向ChatList发送信号"""
-		message = self.input_box.toPlainText().strip()
-		self.input_box.clear()
-		if message:
-			self.chat_list.receive_message(message)
+	def send_message(self, input_box, chat_list):
+		text = input_box.toPlainText().strip()
+		if text:
+			input_box.clear()
+			chat_list.receive_message(text)

@@ -3,16 +3,19 @@ from common import *
 
 log = logging.getLogger(__name__)
 
-common_font = QFont()  # 用于普通的文字，0
-common_font.setFamilies(["Segoe UI", "Helvetica", "Arial"])
+# 普通字体，适合正文和按钮等，微软雅黑为主，兼容宋体和黑体
+common_font = QFont()
+common_font.setFamilies(["华文楷体", "KaiTi", "楷体", "SimKai", "微软雅黑"])
 common_font.setPointSize(13)
 
-big_font = QFont()  # 用于较大的文字，1
-big_font.setFamilies(["Segoe UI", "Helvetica", "Arial"])
+# 较大字体，用于稍微重要点的文字，比如按钮标题
+big_font = QFont()
+big_font.setFamilies(["华文楷体", "KaiTi", "楷体", "SimKai", "微软雅黑"])
 big_font.setPointSize(15)
 
-title_font = QFont()  # 用于应用名的字体，2
-title_font.setFamilies(["Inter", "Helvetica Neue", "Segoe UI", "Arial"])
+# 标题字体，华文楷体为首选，兼容楷体、宋体等
+title_font = QFont()
+title_font.setFamilies(["华文楷体", "KaiTi", "楷体", "SimKai", "微软雅黑"])
 title_font.setPointSize(20)
 
 def set_font(my_widget, kind=0):

@@ -13,7 +13,7 @@ class SideBar(QFrame):
 		layout = QVBoxLayout()
 		layout.setContentsMargins(10, 10, 10, 20)
 
-		name_label=QLabel("Programmer\n————————")
+		name_label=QLabel("Bugsy\n————————")
 		name_label.setAlignment(Qt.AlignCenter)
 		set_font(name_label,2)
 		layout.addWidget(name_label)
@@ -23,8 +23,8 @@ class SideBar(QFrame):
 		layout.addItem(spacer)
 
 		# ===添加功能按钮===
-		names = ("Debug",)
-		_names=("ChattingWindow",)
+		names = ("Debug","文字输入", "图片输入", "文件输入")
+		_names=("ChattingWindow1","ChattingWindow2", "ChattingWindow3", "ChattingWindow4")
 		for i in range(len(names)):
 			btn = QPushButton(f"{names[i]}")
 			btn.setStyleSheet("""

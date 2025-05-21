@@ -115,3 +115,9 @@ class ChatList(QListWidget):
 	def send_message(self, content):
 		"""向AI发送信息"""
 		Signals.instance().send_message_to_ai(content)
+
+	def clear_messages(self):
+		"""
+        清空聊天列表中的所有消息
+        """
+		self.clear()  # 调用 QListWidget 自带的清空方法
