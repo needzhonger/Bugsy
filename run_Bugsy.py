@@ -10,7 +10,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
-from Pet.Petaler import PetWidget
+from Pet.Pet import PetWidget
 from Pet.utils import read_json
 
 

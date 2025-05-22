@@ -3,7 +3,7 @@ from .SideBar import SideBar
 from .Signals import Signals
 from .ChatWindow import ChatList
 from .FontSetting import set_font
-from .AgentSiliconFlow import MyChatAgent, model
+from .Agent_1 import MyChatAgent, model
 from functools import partial
 
 log = logging.getLogger(__name__)
