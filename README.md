@@ -77,7 +77,7 @@ Bugsy/
     *   **先在API_KEY.env文件中输入API密钥**
     *   然后运行run_bugsy.py程序
         ```bash
-        python run_bugsy.py
+        python run_Main_Window.py
         ```
     *   启动后，你将进入一个图形界面，按提示词粘贴代码和题目即可获得建议。
 

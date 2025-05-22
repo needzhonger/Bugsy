@@ -1,0 +1,126 @@
+{
+  "default": {
+    "images": "leftwave",
+    "act_num": 5,
+    "frame_refresh": 0.1
+  },
+  "up" : {
+    "images": "leftwave",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "down" : {
+    "images": "leftwave",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "left": {
+    "images": "leftveryhappy1",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "right": {
+    "images": "rightveryhappy1",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "left_sleepy": {
+    "images": "leftsleepy",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "right_sleepy": {
+    "images": "rightsleepy",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "left_walk": {
+    "images": "leftwalk",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "left",
+    "frame_refresh": 0.1
+  },
+  "right_walk": {
+    "images": "rightwalk",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "right",
+    "frame_refresh": 0.1
+  },
+  "drag": {
+    "images": "drag",
+    "act_num": 1,
+    "frame_refresh": 0.1
+  },
+  "fall": {
+    "images": "fall",
+    "act_num": 1
+  },
+  "left_drink": {
+    "images": "leftdrink",
+    "act_num": 2
+  },
+  "right_drink": {
+    "images": "rightdrink",
+    "act_num": 2
+  },
+  "left_creep": {
+    "images": "leftcreep",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "left",
+    "frame_refresh": 0.2
+  },
+  "right_creep": {
+    "images": "rightcreep",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "right",
+    "frame_refresh": 0.2
+  },
+  "left_happy": {
+    "images": "lefthappy",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "left",
+    "frame_refresh": 0.2
+  },
+  "right_happy": {
+    "images": "righthappy",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "right",
+    "frame_refresh": 0.2
+  },
+  "left_dance": {
+    "images": "leftveryhappy2",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "left",
+    "frame_refresh": 0.2
+  },
+  "right_dance": {
+    "images": "rightveryhappy2",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "left",
+    "frame_refresh": 0.2
+  },
+  "left_workout": {
+    "images": "leftworkout2",
+    "act_num": 2
+  },
+  "right_workout": {
+    "images": "rightworkout2",
+    "act_num": 2
+  },
+  "left_jumprope": {
+    "images": "leftworkout",
+    "act_num": 2
+  },
+  "right_jumprope": {
+    "images": "rightworkout",
+    "act_num": 2
+  }
+}

@@ -14,6 +14,7 @@ class MainWindow(QMainWindow):
 	def __init__(self, app, width=1000, height=600):
 		super().__init__()
 		self.setWindowTitle("Bugsy")
+		self.setWindowIcon(QIcon("Pet/res/icons/icon.png"))
 
 		# 获取屏幕尺寸，设置主窗口位置
 		self.resize(width, height)

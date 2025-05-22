@@ -1,5 +1,6 @@
-from core.common import *
-from core.MainWindow import MainWindow
+from .common import *
+from .MainWindow import MainWindow
+
 
 
 def init_platform_style(app):
@@ -17,10 +18,11 @@ logging.basicConfig(
 	]
 )
 
-if __name__ == "__main__":
-	app = QApplication([])
-	init_platform_style(app)
-	app.setWindowIcon(QIcon("pic/todolist.png"))
+def show_main_window(app = None):
+	# init_platform_style(app)
+	# app.setWindowIcon(QIcon("pic/todolist.png"))
 	main_window = MainWindow(app, 1000, 600)
 	main_window.show()
-	app.exec()
+
+if __name__ == "__main__":
+	show_main_window(QApplication([]))
