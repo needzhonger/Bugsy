@@ -17,6 +17,7 @@ class MyChatAgent(ChatAgent):
 		log.info("MyChatAgent初始化完成")
 
 	def stream_response(self, prompt):
+		print("[DEBUG] stream_response 被调用，prompt:", prompt)
 		"""流式输出响应"""
 		api_url = f"{self._model._url}/v1/chat/completions"
 		headers = {

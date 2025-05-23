@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 class MainWindow(QMainWindow):
 
 	def __init__(self, app, width=1000, height=600):
+
 		super().__init__()
 		self.setWindowTitle("Bugsy")
 		self.setWindowIcon(QIcon("Pet/res/icons/icon.png"))
@@ -32,7 +33,38 @@ class MainWindow(QMainWindow):
 		self.main_layout = QHBoxLayout()
 		self.main_layout.setContentsMargins(0, 0, 0, 0)
 		self.main_layout.setSpacing(0)
-		self.central_widget.setLayout(self.main_layout)
+
+		# 原来的 main_layout 改为放入 outer_layout
+		self.outer_layout = QVBoxLayout()
+		self.outer_layout.setContentsMargins(0, 0, 0, 0)
+		self.outer_layout.setSpacing(0)
+		self.central_widget.setLayout(self.outer_layout)
+
+		# 顶部栏布局
+		self.top_bar = QHBoxLayout()
+		self.top_bar.setContentsMargins(10, 10, 10, 0)
+
+		# 添加弹性空间，使按钮靠右
+		self.top_bar.addStretch()
+
+		# 登录按钮
+		self.login_button = QPushButton("登录")
+		self.login_button.setFixedHeight(28)
+		self.login_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
+		self.login_button.clicked.connect(self.show_login_window)
+
+		# 注册按钮
+		self.register_button = QPushButton("注册")
+		self.register_button.setFixedHeight(28)
+		self.register_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
+		self.register_button.clicked.connect(self.show_register_window)
+
+		self.top_bar.addWidget(self.login_button)
+		self.top_bar.addWidget(self.register_button)
+
+		# 添加顶部栏和主区域布局
+		self.outer_layout.addLayout(self.top_bar)
+		self.outer_layout.addLayout(self.main_layout)
 
 		# 侧边栏
 		self.sidebar = SideBar(self)
@@ -59,6 +91,13 @@ class MainWindow(QMainWindow):
 		# 设置AI
 		self.chat_agent = MyChatAgent(model=model)
 		Signals.instance().message_to_chat_agent_signal.connect(lambda x: self.chat_agent.stream_response(x))
+
+
+	def show_login_window(self):
+		QMessageBox.information(self, "登录", "登录窗口弹出（未实现）")
+
+	def show_register_window(self):
+		QMessageBox.information(self, "注册", "注册窗口弹出（未实现）")
 
 	def create_chat_window(self):
 		chat_widget = QWidget()
@@ -210,6 +249,7 @@ class MainWindow(QMainWindow):
 		self.animations["sidebar"].start()
 
 	def send_message(self, input_box, chat_list):
+		print("in send_message!")
 		text = input_box.toPlainText().strip()
 		if text:
 			input_box.clear()

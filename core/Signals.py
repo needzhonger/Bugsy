@@ -31,6 +31,7 @@ class Signals(QObject):
 		"""
 		向AI发送问题
 		"""
+		print("in send_message_to_ai")
 		self.message_to_chat_agent_signal.emit(content)
 
 	def send_ai_response(self,response):

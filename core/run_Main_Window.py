@@ -1,7 +1,8 @@
 from .common import *
 from .MainWindow import MainWindow
 
-
+have_MainWindow = False
+main_window = None
 
 def init_platform_style(app):
 	# 根据系统选择UI风格
@@ -19,9 +20,11 @@ logging.basicConfig(
 )
 
 def show_main_window(app = None):
-	# init_platform_style(app)
-	# app.setWindowIcon(QIcon("pic/todolist.png"))
-	main_window = MainWindow(app, 1000, 600)
+	global have_MainWindow
+	global main_window
+	if not have_MainWindow:
+		main_window = MainWindow(app, 1000, 600)
+		have_MainWindow = True
 	main_window.show()
 
 if __name__ == "__main__":

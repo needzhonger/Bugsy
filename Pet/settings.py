@@ -1,7 +1,7 @@
 from PySide6.QtGui import QImage
 
-current_img: QImage = None
-previous_img: QImage = None
+current_img= None
+previous_img= None
 
 # 动画状态
 act_id: int = 0  # 当前选中的动作ID
