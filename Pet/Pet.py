@@ -207,7 +207,7 @@ class PetWidget(QWidget):
 
         # 设置字体
         QFontDatabase.addApplicationFont('Pet/res/font/MFNaiSi_Noncommercial-Regular.otf')
-        font = QFont('华文楷体', int(15 / screen_scale))
+        font = QFont('华文楷体', int(13 / screen_scale))
         self.dialogue.setFont(font)
 
         # 开启自动换行

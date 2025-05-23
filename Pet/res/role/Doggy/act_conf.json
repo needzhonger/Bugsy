@@ -48,79 +48,82 @@
     "direction": "right",
     "frame_refresh": 0.1
   },
-  "drag": {
-    "images": "drag",
-    "act_num": 1,
-    "frame_refresh": 0.1
-  },
-  "fall": {
-    "images": "fall",
-    "act_num": 1
-  },
   "left_drink": {
     "images": "leftdrink",
-    "act_num": 2
+    "act_num": 2,
+    "frame_refresh": 0.1
   },
   "right_drink": {
     "images": "rightdrink",
-    "act_num": 2
+    "act_num": 2,
+    "frame_refresh": 0.1
   },
   "left_creep": {
     "images": "leftcreep",
     "act_num": 5,
     "need_move": true,
     "direction": "left",
-    "frame_refresh": 0.2
+    "frame_refresh": 0.15
   },
   "right_creep": {
     "images": "rightcreep",
     "act_num": 5,
     "need_move": true,
     "direction": "right",
-    "frame_refresh": 0.2
+    "frame_refresh": 0.15
   },
   "left_happy": {
     "images": "lefthappy",
     "act_num": 5,
     "need_move": true,
     "direction": "left",
-    "frame_refresh": 0.2
+    "frame_refresh": 0.1
   },
   "right_happy": {
     "images": "righthappy",
     "act_num": 5,
     "need_move": true,
     "direction": "right",
-    "frame_refresh": 0.2
+    "frame_refresh": 0.1
   },
   "left_dance": {
     "images": "leftveryhappy2",
-    "act_num": 5,
-    "need_move": true,
-    "direction": "left",
-    "frame_refresh": 0.2
+    "act_num": 2,
+    "frame_refresh": 0.1
   },
   "right_dance": {
     "images": "rightveryhappy2",
-    "act_num": 5,
-    "need_move": true,
-    "direction": "left",
-    "frame_refresh": 0.2
+    "act_num": 2,
+    "frame_refresh": 0.1
   },
   "left_workout": {
     "images": "leftworkout2",
-    "act_num": 2
+    "act_num": 2,
+    "frame_refresh": 0.1
   },
   "right_workout": {
     "images": "rightworkout2",
-    "act_num": 2
+    "act_num": 2,
+    "frame_refresh": 0.1
   },
   "left_jumprope": {
     "images": "leftworkout",
-    "act_num": 2
+    "act_num": 2,
+    "frame_refresh": 0.1
   },
   "right_jumprope": {
     "images": "rightworkout",
-    "act_num": 2
+    "act_num": 2,
+    "frame_refresh": 0.1
+  },
+  "left_wave" : {
+    "images": "leftwave",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "right_wave" : {
+    "images": "rightwave",
+    "act_num": 3,
+    "frame_refresh": 0.1
   }
 }
