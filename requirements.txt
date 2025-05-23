@@ -9,6 +9,7 @@ beautifulsoup4
 tinycss2
 mdx-truly-sane-lists
 mdx-breakless-lists
+mysql-connector-python
 
 # 从 GitHub 安装 camel（固定 main 分支）
 git+https://github.com/camel-ai/camel.git#egg=camel-ai

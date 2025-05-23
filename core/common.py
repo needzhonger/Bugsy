@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QApplication, QStyleFactory, QMainWindow, QWidget
 from PySide6.QtCore import (QPropertyAnimation, QEasingCurve, Qt, QDate, QTime, QDateTime, Signal, Slot, QSize, QObject,
 							QPoint, QTimer, QEvent, QPointF, QPersistentModelIndex, QRect)
 from PySide6.QtGui import (QIcon, QAction, QPixmap, QColor, QLinearGradient, QPainter, QMouseEvent,
-						   QPainter, QFontMetrics, QTextCharFormat, QPen, QCursor,QPalette)
+						   QPainter, QFontMetrics, QTextCharFormat, QPen, QCursor,QPalette, QCloseEvent)
 import sys
 from camel.agents import ChatAgent
 from camel.models import ModelFactory

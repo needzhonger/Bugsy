@@ -5,6 +5,8 @@ from .ChatWindow import ChatList
 from .FontSetting import set_font
 from .Agent_1 import MyChatAgent, model
 from functools import partial
+from core.register_and_login.ui_login import LoginWindow
+from core.register_and_login.ui_register import RegisterWindow
 
 log = logging.getLogger(__name__)
 
@@ -48,12 +50,16 @@ class MainWindow(QMainWindow):
 		self.top_bar.addStretch()
 
 		# 登录按钮
+		self.have_login_window = False # 标记是否已经存在登录窗口，避免重复加载登录窗口
+		self.login_window = None
 		self.login_button = QPushButton("登录")
 		self.login_button.setFixedHeight(28)
 		self.login_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
 		self.login_button.clicked.connect(self.show_login_window)
 
 		# 注册按钮
+		self.have_register_window = False  # 标记是否已经存在注册窗口，避免重复加载注册窗口
+		self.login_window = None
 		self.register_button = QPushButton("注册")
 		self.register_button.setFixedHeight(28)
 		self.register_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
@@ -94,10 +100,32 @@ class MainWindow(QMainWindow):
 
 
 	def show_login_window(self):
-		QMessageBox.information(self, "登录", "登录窗口弹出（未实现）")
+		if not self.have_login_window:
+			self.login_window = LoginWindow(self)
+			self.login_window.show()
+			self.have_login_window = True
+		# 1. 取消最小化（恢复正常大小）
+		self.login_window.setWindowState(self.login_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
+
+		# 2. 置顶显示
+		self.login_window.raise_()  # 提升到其他窗口上方
+		self.login_window.activateWindow()  # 激活为当前活动窗口
+
+		# QMessageBox.information(self, "登录", "登录窗口弹出（未实现）")
 
 	def show_register_window(self):
-		QMessageBox.information(self, "注册", "注册窗口弹出（未实现）")
+		if not self.have_register_window:
+			self.register_window = RegisterWindow(self)
+			self.register_window.show()
+			self.have_register_window = True
+		# 1. 取消最小化（恢复正常大小）
+		self.register_window.setWindowState(self.register_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
+
+		# 2. 置顶显示
+		self.register_window.raise_()  # 提升到其他窗口上方
+		self.register_window.activateWindow()  # 激活为当前活动窗口
+
+		# QMessageBox.information(self, "注册", "注册窗口弹出（未实现）")
 
 	def create_chat_window(self):
 		chat_widget = QWidget()
