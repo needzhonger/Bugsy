@@ -3,9 +3,9 @@ from .Signals import Signals
 
 log = logging.getLogger(__name__)
 
-load_dotenv(dotenv_path='../API_KEY.env')
+load_dotenv(dotenv_path='core/API_KEY.env')
 api_key = os.getenv('API_KEY')
-
+print("当前使用的 API_KEY：", api_key)
 
 class MyChatAgent(ChatAgent):
 	"""自定义类，实现流式响应"""
@@ -17,7 +17,9 @@ class MyChatAgent(ChatAgent):
 		log.info("MyChatAgent初始化完成")
 
 	def stream_response(self, prompt):
-		print("[DEBUG] stream_response 被调用，prompt:", prompt)
+		if not self._model._api_key:
+			self.send_message("[ERROR] API Key为空，请检查环境变量或配置")
+			return
 		"""流式输出响应"""
 		api_url = f"{self._model._url}/v1/chat/completions"
 		headers = {

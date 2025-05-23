@@ -1,3 +1,5 @@
+from PySide6.QtCore import Qt
+
 from .common import *
 from .MainWindow import MainWindow
 
@@ -26,6 +28,12 @@ def show_main_window(app = None):
 		main_window = MainWindow(app, 1000, 600)
 		have_MainWindow = True
 	main_window.show()
+	# 1. 取消最小化（恢复正常大小）
+	main_window.setWindowState(main_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
+
+	# 2. 置顶显示
+	main_window.raise_()  # 提升到其他窗口上方
+	main_window.activateWindow()  # 激活为当前活动窗口
 
 if __name__ == "__main__":
 	show_main_window(QApplication([]))

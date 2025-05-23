@@ -249,7 +249,7 @@ class MainWindow(QMainWindow):
 		self.animations["sidebar"].start()
 
 	def send_message(self, input_box, chat_list):
-		print("in send_message!")
+		# print("in send_message!")
 		text = input_box.toPlainText().strip()
 		if text:
 			input_box.clear()
