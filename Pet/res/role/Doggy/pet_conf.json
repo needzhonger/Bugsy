@@ -1,0 +1,45 @@
+{
+  "width": 150,
+  "height": 75,
+  "scale": 0.8,
+
+  "refresh": 0,
+  "interact_speed":0.02,
+  "gravity": 1.0,
+
+  "default": "default",
+  "up": "up",
+  "down": "down",
+  "left": "left",
+  "right": "right",
+  "drag": "drag",
+  "fall": "fall",
+  
+  "random_act": [
+    ["left_wave"],
+    ["right_wave"],
+    ["left_walk", "right_walk","right"],
+    ["right_walk", "left_walk","left"],
+    ["left_sleepy"],
+    ["right_sleepy"],
+    ["left_dance", "right_dance"],
+    ["right_dance", "left_dance"],
+    ["left_happy"],
+    ["right_happy"],
+    ["left_jumprope"],
+    ["right_jumprope"],
+    ["left_workout"],
+    ["right_workout"],
+    ["left_creep"],
+    ["right_creep"],
+    ["left_creep","right_creep"],
+    ["right_creep","left_creep"],
+    ["left_drink", "left_happy"],
+    ["right_drink", "right_happy"]
+  ],
+  "act_prob": [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5],
+  "random_act_name": ["招手（左）","招手（右）","走来走去（先左后右）","走来走去（先右后左）","困了（左）","困了（右）","跳舞（先左后右）", "跳舞（先右后左）","高兴（左）", "高兴（右）", "跳绳（左）", "跳绳（右）", "举哑铃（左）", "举哑铃（右）","爬行（左）", "爬行（右）", "爬来爬去（先左后右）","爬来爬去（先右后左）", "喝饮料（左）", "喝饮料（右）"],
+
+  "hp_interval": 5,
+  "em_interval": 2
+}

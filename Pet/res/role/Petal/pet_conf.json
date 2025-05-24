@@ -1,0 +1,38 @@
+{
+  "width": 150,
+  "height": 100,
+  "scale": 1.0,
+  
+  "refresh": 0,
+  "interact_speed":0.02,
+  "gravity": 1.0,
+
+  "default": "default",
+  "up": "up",
+  "down": "down",
+  "left": "left",
+  "right": "right",
+  "drag": "drag",
+  "fall": "fall",
+  
+  "random_act": [
+    ["left"],
+    ["right"],
+    ["left_walk", "right_walk","right"],
+    ["right_walk", "left_walk","left"],
+    ["left_walk", "left"],
+    ["right_walk", "right"],
+    ["fall_asleep", "sleep"],
+    ["cry","default"],
+    ["left_flower","left"],
+    ["right_flower","right"],
+    ["hurry","default"],
+    ["left_claw","left"],
+    ["right_claw","right"]
+  ],
+  "act_prob": [0.5,0.5,0.5,0.5,0.5,0.5,0.2,0.2,0.5,0.5,1.0,0.5,0.5],
+  "random_act_name": ["左站立","右站立","左右行走","右左行走","向左走","向右走","睡觉","哭哭","左送fa","右送fa","急了","左挠","右挠"],
+
+  "hp_interval": 5,
+  "em_interval": 2
+}

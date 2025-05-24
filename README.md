@@ -26,22 +26,34 @@ Bugsy 支持三种主要输入方式：
 ## 📂 项目结构概览
 ```
 Bugsy/
-├── core/              # 核心功能模块
-│   ├── analyzer.py    # 错误分析与定位模块
-│   ├── fixer.py       # AI 修复逻辑模块
-│   ├── interface.py   # 用户交互与响应生成
-│   └── __init__.py
-├── frontend/          # （可选）Web 或 CLI 界面代码
-│   └── cli.py         # 命令行接口示例
-├── data/              # 示例代码、模型缓存等
-├── tests/             # 测试用例与验证脚本
-├── run_bugsy.py       # 启动入口
-└── README.md          # 项目说明文件
+├── core/                         # 核心功能模块
+│   ├── AgentCamel.py             # Camel AI 接口
+│   ├── AgentSiliconFlow.py       # 硅基流动 AI 接口
+│   ├── ChatWindow.py             # 聊天框
+│   ├── common.py                 # 环境配置
+│   ├── FontSetting.py            # 字体设置
+│   ├── MainWindow.py             # 主界面
+│   ├── SideBar.py                # 侧边栏
+│   ├── Signals.py                # 信号
+│   ├── __init__.py               # 初始化文件，表明core是个包
+│   └── API_KEY.env               # api密钥
+├── Pet/                          # 桌宠模块功能
+│   ├── data                      # 用于存放数据
+│   ├── res                       # 资源文件
+│   ├── __init__.py               # 初始化文件，表明Pet是个包
+│   ├── conf.py                   # 定义宠物配置、动作和状态数据的类。
+│   ├── module.py                 # 处理宠物的各项功能
+│   ├── Pet.py                    # 宠物核心 UI 模块
+│   ├── setting.py                # 初始化应用程序所需的全局状态变量
+│   └── utils.py                  # 存放常用的工具函数
+├── requirements.txt              # 环境要求
+├── run_bugsy.py                  # 启动入口
+└── README.md                     # 项目说明文件
 ```
 
 ## 🚀 快速开始
 1.  **环境配置**：
-    *   确保你已安装Python。项目代码中使用了 f-string、类型提示等特性，推荐 **Python 3.9 及以上版本**
+    *   确保你已安装Python。项目代码中使用了 f-string、类型提示等特性，推荐 **Python 3.10 及以上版本**
 
     *   安装项目依赖：
         可以选择直接使用项目配备的requirements.txt文件：
@@ -71,17 +83,23 @@ Bugsy/
 
 
 2.  **启动应用**：
-```bash
-python run_bugsy.py
-```
-启动后，你将进入一个图形界面，按提示词粘贴代码和题目即可获得建议。
+
+    *   **先在API_KEY.env文件中输入API密钥**
+    *   然后运行run_bugsy.py程序
+        ```bash
+        python run_Main_Window.py
+        ```
+    *   启动后，桌宠 *Doggy* 将出现在桌面，你可以通过左键点击 *Doggy* 以进入debug界面，也可以右键 *Doggy* 或右键托盘图标打开宠物菜单，点击 **“救救我”** 选项以进入相同的debug界面。
+    *   宠物菜单中还有其他功能如 **“切换角色”** ， **“选择动作”** 等
+    *   想要退出 Bugsy，只需要右键 *Doggy* 或右键托盘图标， 在宠物菜单中点击 **“退出”** 选项即可
+
 
 ## 🛠️ 技术选型
-*   **编程语言**：Python 3.9+
+*   **编程语言**：Python 3.10+
 *   **模型支持**：Deepseek R1
 *   **分析方式**：
 *   **图像处理**：
-*   **依赖库**  ：等
+*   **依赖库**  ：PySide6、camel-ai、dotenv、colorama等
 
 ## 📝 注意事项
 *   当前版本主要支持 C++ 脚本的错误分析和修复。

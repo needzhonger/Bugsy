@@ -1,0 +1,94 @@
+{
+  "default": {
+    "images": "leftstand",
+    "act_num": 5,
+    "frame_refresh": 0.1
+  },
+  "up" : {
+    "images": "leftstand",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "down" : {
+    "images": "leftstand",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "left": {
+    "images": "leftstand",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "right": {
+    "images": "rightstand",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "fall_asleep": {
+    "images": "fallasleep",
+    "act_num": 1,
+    "frame_refresh": 0.1
+  },
+  "sleep": {
+    "images": "sleep",
+    "act_num": 1,
+    "frame_refresh": 0.5
+  },
+  "left_walk": {
+    "images": "leftwalk",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "left",
+    "frame_refresh": 0.2
+  },
+  "right_walk": {
+    "images": "rightwalk",
+    "act_num": 5,
+    "need_move": true,
+    "direction": "right",
+    "frame_refresh": 0.2
+  },
+  "drag": {
+    "images": "drag",
+    "act_num": 1,
+    "frame_refresh": 0.1
+  },
+  "fall": {
+    "images": "fall",
+    "act_num": 1
+  },
+  "cry": {
+    "images": "cry",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "left_flower": {
+    "images": "leftflower",
+    "act_num": 2,
+    "need_move": true,
+    "direction": "left",
+    "frame_refresh": 0.2
+  },
+  "right_flower": {
+    "images": "rightflower",
+    "act_num": 2,
+    "need_move": true,
+    "direction": "right",
+    "frame_refresh": 0.2
+  },
+  "hurry": {
+    "images": "hurry",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "left_claw": {
+    "images": "leftclaw",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  },
+  "right_claw": {
+    "images": "rightclaw",
+    "act_num": 3,
+    "frame_refresh": 0.1
+  }
+}
