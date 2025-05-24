@@ -1,8 +1,8 @@
 import logging
 from html import escape
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QWidget, QHBoxLayout, QLabel,
-                             QListWidget, QListWidgetItem)
+                             QListWidget, QListWidgetItem, QSizePolicy)
 from markdown import markdown
 from markdown.exceptions import MarkdownException
 from pygments import highlight
