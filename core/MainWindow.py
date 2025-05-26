@@ -1,13 +1,13 @@
 from .common import *
-from SideBar import SideBar
-from Signals import Signals
-from ChatWindow import ChatList
-from FontSetting import set_font
-from Agent_1 import MyChatAgent
-from Model import model
+from .SideBar import SideBar
+from .Signals import Signals
+from .ChatWindow import ChatList
+from .FontSetting import set_font
+from .Agent_1 import MyChatAgent
+from .Model import model
 from functools import partial
-from register_and_login.ui_login import LoginWindow
-from register_and_login.ui_register import RegisterWindow
+from .register_and_login.ui_login import LoginWindow
+from .register_and_login.ui_register import RegisterWindow
 
 log = logging.getLogger(__name__)
 
