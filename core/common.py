@@ -13,6 +13,9 @@ import sys
 from camel.agents import ChatAgent
 from camel.models import ModelFactory
 from camel.types import ModelPlatformType
+from camel.messages import BaseMessage
+from camel.types import RoleType
+from camel.utils import print_text_animated
 import requests
 import json
 import os

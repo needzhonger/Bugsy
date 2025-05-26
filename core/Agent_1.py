@@ -51,13 +51,3 @@ class MyChatAgent(ChatAgent):
 
 	def send_message(self, message):
 		Signals.instance().send_ai_response(message)
-
-
-# 初始化模型
-model = ModelFactory.create(
-	model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
-	model_type="Pro/deepseek-ai/DeepSeek-R1",
-	url="https://api.siliconflow.cn",
-	api_key=api_key,
-	model_config_dict={"max_tokens": 2000, "stream": True}
-)

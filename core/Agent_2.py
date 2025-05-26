@@ -2,26 +2,10 @@ from camel.responses import ChatAgentResponse
 from colorama import Fore
 from camel.societies import RolePlaying
 from camel.utils import print_text_animated
-from camel.models import ModelFactory
-from camel.types import ModelPlatformType
 from camel.agents import ChatAgent
-from dotenv import load_dotenv
 from pydantic import BaseModel
-import os
+from Model import model
 import json
-
-# 加载 API Key
-load_dotenv(dotenv_path='API_KEY.env')
-api_key = os.getenv('API_KEY')
-
-# 创建模型
-model = ModelFactory.create(
-	model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
-	model_type="Pro/deepseek-ai/DeepSeek-R1",
-	url="https://api.siliconflow.cn",
-	api_key=api_key,
-	model_config_dict={"max_tokens": 10000}
-)
 
 
 class TestCase(BaseModel):
@@ -41,7 +25,8 @@ class AIAgent:
 	def __init__(self, model):
 		self.model = model
 
-	def communication(self, task_prompt, assistant_role_name, user_role_name, use_task_specify=False, chat_turn_limit=10):
+	def communication(self, task_prompt, assistant_role_name, user_role_name, use_task_specify=False,
+					  chat_turn_limit=10):
 		role_play_session = RolePlaying(
 			assistant_role_name=assistant_role_name,
 			assistant_agent_kwargs=dict(model=self.model),
@@ -81,7 +66,7 @@ class AIAgent:
 
 			input_msg = assistant_response.msg
 
-	def structured_output(self, problem_description: str,code_lang : str, user_code: str):
+	def structured_output(self, problem_description: str, code_lang: str, user_code: str):
 		prompt = f"""
 我正在做如下{code_lang}编程题：
 
@@ -98,11 +83,11 @@ class AIAgent:
 4. 两组测试数据（含输入、原代码输出和期望输出）
 """
 		agent = ChatAgent(model=self.model)
-		response = agent.step(prompt,response_format=StructuredOutputSchema)
+		response = agent.step(prompt, response_format=StructuredOutputSchema)
 		# 提取消息内容（注意：response.msg.content 才是实际文本）
 		content = response.msg.content
 		print_text_animated(Fore.BLUE + f"正在生成JSON文件\n")
-		print_text_animated(Fore.RED+"正在解析...\n")
+		print_text_animated(Fore.RED + "正在解析...\n")
 
 		parsed = None
 		try:
@@ -121,9 +106,9 @@ if __name__ == "__main__":
 	agent = AIAgent(model)
 
 	while True:
-		problem_description = input(Fore.WHITE + "请输入题目描述：\n")
-		code_lang = input(Fore.WHITE + "请输入编程语言：（cpp、python、java等）\n")
-		user_code = input(Fore.WHITE + "请输入错误代码：(由于输入格式限制，请在一行内输入)\n")
+		problem_description = input(Fore.BLACK + "请输入题目描述：\n")
+		code_lang = input(Fore.BLACK + "请输入编程语言：（cpp、python、java等）\n")
+		user_code = input(Fore.BLACK + "请输入错误代码：(由于输入格式限制，请在一行内输入)\n")
 		output = agent.structured_output(problem_description, code_lang, user_code)
 		print_text_animated(Fore.GREEN + f"【题目分析】\n{output.problem_analysis}\n")
 		print_text_animated(Fore.GREEN + f"【错误原因】\n{output.error_reason}\n")
@@ -131,4 +116,5 @@ if __name__ == "__main__":
 		print_text_animated(Fore.BLUE + f"【测试数据】\n")
 
 		for i, case in enumerate(output.test_cases, 1):
-			print_text_animated(Fore.BLUE + f"示例{i}：\n输入: {case.input}\n原代码输出: {case.origin_output}\n期望输出: {case.expected_output}\n\n")
+			print_text_animated(
+				Fore.BLUE + f"示例{i}：\n输入: {case.input}\n原代码输出: {case.origin_output}\n期望输出: {case.expected_output}\n\n")

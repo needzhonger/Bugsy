@@ -45,10 +45,7 @@ model = ModelFactory.create(
 )
 
 # 将模型放进智能体
-agent = ChatAgent(
-	model=model,
-	output_language='中文'
-)
+agent = ChatAgent(model=model,output_language='中文')
 
 # 进行对话
 response = agent.step("你好，你是谁？")  # 使用step()进行一次对话
