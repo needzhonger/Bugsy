@@ -24,6 +24,9 @@ pip install sqlalchemy
 
 pip install pandas
 
+#### 其它
+pip install tinycss2
+pip install markdown pygments bleach beautifulsoup4
 # 搭建智能体
 
 ## 搭建一个模型（使用硅基流动API）

@@ -1,7 +1,16 @@
+from html import escape
 from .common import *
+from markdown import markdown
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name, TextLexer
+from pygments.formatters import HtmlFormatter
+from pygments.util import ClassNotFound
+from bleach import clean
+from bleach.css_sanitizer import CSSSanitizer
 from .Signals import Signals
 from bs4 import BeautifulSoup
-from .FontSetting import set_font
+
+# from markdown import MarkdownException//TODO:是否真的存在？
 
 log = logging.getLogger(__name__)
 
@@ -14,7 +23,6 @@ class ChatMessage(QWidget):
 		self.setup_ui(message)
 
 	def setup_ui(self, message):
-		# 清理旧布局
 		if old_layout := self.layout():
 			temp_widget = QWidget()
 			temp_widget.setLayout(old_layout)
@@ -65,7 +73,7 @@ class ChatMessage(QWidget):
 			log.exception("Markdown处理失败")
 			return f"""
             <div class='error-box'>
-                <p>⚠ 内容渲染错误</p>
+                <p> 内容渲染错误</p>
                 <pre>{escape(str(e))}</pre>
                 <hr>
                 <pre>原始内容: {escape(markdown_text[:500])}</pre>
@@ -81,37 +89,64 @@ class ChatMessage(QWidget):
 					'codehilite',
 					'tables',
 					'nl2br',
-					'mdx_truly_sane_lists',
-					'mdx_breakless_lists'
 				],
 				output_format='html5'
 			)
-		except MarkdownException as e:
-			raise RuntimeError(f"Markdown语法错误: {str(e)}") from e
+		# except MarkdownException as e:
+		#	raise RuntimeError(f"Markdown语法错误: {str(e)}") from e
 		except Exception as e:
 			raise RuntimeError(f"文档转换失败: {str(e)}") from e
 
 	def add_code_highlight(self, html):
 		try:
+			soup = BeautifulSoup(html, 'html.parser')
 			formatter = HtmlFormatter(
 				style="material",
 				noclasses=True,
-				nowrap=True,
-				cssstyles="margin: 1em 0; padding: 1em;"
+				cssstyles="""
+                    background: #f8f9fa !important; 
+                    border-radius: 4px;
+                    padding: 1em;
+                    margin: 1em 0;
+                    overflow-x: auto;
+                """
 			)
-			return highlight(
-				html,
-				lexer=get_lexer_by_name("html", stripall=True),
-				formatter=formatter
-			)
-		except ClassNotFound:
-			return highlight(
-				html,
-				lexer=TextLexer(),
-				formatter=HtmlFormatter(style="bw")
-			)
+
+			for pre_tag in soup.find_all('pre'):
+				code_tag = pre_tag.find('code')
+				if not code_tag:
+					continue
+
+				lang = 'text'
+				classes = code_tag.get('class', [])
+				if classes:
+					lang_class = next((c for c in classes if c.startswith('language-')), None)
+					if lang_class:
+						lang = lang_class.split('-')[-1]
+
+				try:
+					lexer = get_lexer_by_name(lang, stripall=True)
+				except ClassNotFound:
+					lexer = TextLexer()
+
+				try:
+					highlighted = highlight(
+						code_tag.get_text(),
+						lexer,
+						formatter
+					)
+					new_tag = soup.new_tag('div')
+					new_tag.append(BeautifulSoup(highlighted, 'html.parser'))
+					pre_tag.replace_with(new_tag)
+				except Exception as e:
+					log.warning(f"代码高亮失败: {str(e)}")
+					error_tag = soup.new_tag('div', style='color:red;')
+					error_tag.string = f"代码高亮错误: {str(e)}"
+					pre_tag.replace_with(error_tag)
+
+			return str(soup)
 		except Exception as e:
-			log.warning(f"代码高亮失败: {str(e)}")
+			log.error(f"HTML处理异常: {str(e)}")
 			return html
 
 	def wrap_full_html(self, content):
@@ -120,7 +155,7 @@ class ChatMessage(QWidget):
         <html>
         <head>
         <style>
-            {HtmlFormatter(style="material").get_style_defs()}
+            {HtmlFormatter(style="material").get_style_defs('.highlight')}
             body {{
                 margin:0;
                 font-family: system-ui, -apple-system, sans-serif;
@@ -156,6 +191,11 @@ class ChatMessage(QWidget):
             a {{ color: #0366d6; text-decoration: none; }}
             a:hover {{ text-decoration: underline; }}
             img {{ max-width: 100%; height: auto; }}
+            .highlight {{
+                background: transparent !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }}
         </style>
         </head>
         <body>{content}</body>
@@ -181,7 +221,7 @@ class ChatMessage(QWidget):
 			},
 			protocols=['http', 'https', 'data'],
 			strip_comments=True,
-			css_sanitizer=bleach.CSSSanitizer(
+			css_sanitizer=CSSSanitizer(
 				allowed_css_properties=['color', 'font-weight', 'text-decoration']
 			)
 		)
@@ -191,13 +231,13 @@ class SafeQLabel(QLabel):
 	def __init__(self, html, parent):
 		super().__init__(parent)
 		self.setWordWrap(True)
-		self.setTextFormat(Qt.TextFormat.RichText)
-		self.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
+		self.setTextFormat(Qt.RichText)
+		self.setTextInteractionFlags(Qt.TextBrowserInteraction)
 		self.setOpenExternalLinks(True)
 		self.setHtml(html)
 		self.setSizePolicy(
-			QSizePolicy.Policy.Expanding,
-			QSizePolicy.Policy.Preferred
+			QSizePolicy.Expanding,
+			QSizePolicy.Preferred
 		)
 
 	def configure_style(self, is_me):
@@ -218,9 +258,6 @@ class ChatList(QListWidget):
 	def __init__(self, parent=None):
 		super().__init__(parent)
 		self.last_sender = None
-		self.setup_ui()
-
-	def setup_ui(self):
 		self.setStyleSheet("""
             QListWidget {
                 background: #f8f9fa;
@@ -232,7 +269,7 @@ class ChatList(QListWidget):
                 border: none;
             }
         """)
-		self.setVerticalScrollMode(QListWidget.ScrollMode.ScrollPerPixel)
+		self.setVerticalScrollMode(QListWidget.ScrollPerPixel)
 		self.verticalScrollBar().setSingleStep(20)
 		self.setSpacing(4)
 
@@ -244,9 +281,12 @@ class ChatList(QListWidget):
 			content = content.replace('\x00', '').strip()
 
 			if self.should_append(is_me):
-				self.append_to_last(content)
+				self.append_to_last(content, is_me)
 			else:
 				self.create_new_item(content, is_me)
+
+			if is_me:
+				self.send_message(content)
 
 			self.scrollToBottom()
 		except Exception as e:
@@ -261,15 +301,16 @@ class ChatList(QListWidget):
 				(widget := self.itemWidget(item))
 		)
 
-	def append_to_last(self, content):
-		last_item = self.item(self.count() - 1)
-		widget = self.itemWidget(last_item)
-		try:
-			widget.append_message(content)
-			last_item.setSizeHint(widget.sizeHint())
-		except Exception as e:
-			log.error(f"消息追加失败: {str(e)}")
-			self.create_new_item(f"[原始消息追加失败，显示为新消息]\n{content}", is_me)
+	def append_to_last(self, content, is_me):
+		if not is_me:  # 用户不能追加消息
+			last_item = self.item(self.count() - 1)
+			widget = self.itemWidget(last_item)
+			try:
+				widget.append_message(content)
+				last_item.setSizeHint(widget.sizeHint())
+			except Exception as e:
+				log.error(f"消息追加失败: {str(e)}")
+				self.create_new_item(f"[原始消息追加失败，显示为新消息]\n{content}", is_me)
 
 	def create_new_item(self, content, is_me):
 		item = QListWidgetItem()
@@ -279,14 +320,36 @@ class ChatList(QListWidget):
 		self.setItemWidget(item, widget)
 		self.last_sender = is_me
 
+	def show_error_message(self, error):
+		item = QListWidgetItem()
+		widget = QLabel(f"<span style='color:red'> 错误: {escape(error)}</span>")
+		widget.setStyleSheet("padding: 8px;")
+		item.setSizeHint(widget.sizeHint())
+		self.addItem(item)
+		self.setItemWidget(item, widget)
 
 	def send_message(self, content):
-		"""向AI发送信息"""
 		Signals.instance().send_message_to_ai(content)
 
 
-	def clear_messages(self):
-		"""
-		清空聊天列表中的所有消息
-		"""
-		self.clear()  # 调用 QListWidget 自带的清空方法
+if __name__ == "__main__":
+	from PySide6.QtWidgets import QApplication
+	import sys
+
+	logging.basicConfig(level=logging.INFO)
+
+	app = QApplication(sys.argv)
+	Signals.instance().chat_agent_response_signal.connect(lambda msg: print(f"AI收到消息: {msg}"))
+
+	chat_list = ChatList()
+	chat_list.receive_message("用户消息测试", True)
+	chat_list.receive_message("这是一条markdown测试：\n\n```python\nprint('Hello World!')\n```", True)
+
+	window = QWidget()
+	layout = QHBoxLayout()
+	layout.addWidget(chat_list)
+	window.setLayout(layout)
+	window.resize(600, 400)
+	window.show()
+
+	sys.exit(app.exec())

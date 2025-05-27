@@ -180,14 +180,14 @@ class MainWindow(QMainWindow):
 		set_font(send_btn)
 		send_btn.setStyleSheet("""
 						QPushButton {
-		                    background-color: palette(midlight);
+		                    background-color: palette(light);
 		                    border: none;
 		                    color: #07C160;
 		                    padding: 0px;
 		                    text-align: center;
 		                }
 		                QPushButton:hover {
-		                    background-color: palette(mid);
+		                    background-color: palette(midlight);
 		                    border-radius: 4px;
 		                }
 		                QPushButton:pressed {
@@ -282,4 +282,4 @@ class MainWindow(QMainWindow):
 		text = input_box.toPlainText().strip()
 		if text:
 			input_box.clear()
-			chat_list.receive_message(text)
+			chat_list.receive_message(text,True)
