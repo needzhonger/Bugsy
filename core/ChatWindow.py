@@ -9,8 +9,6 @@ from bleach import clean
 from bleach.css_sanitizer import CSSSanitizer
 from .Signals import Signals
 from bs4 import BeautifulSoup
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QSizePolicy
-from PySide6.QtCore import Qt
 
 log = logging.getLogger(__name__)
 
@@ -42,10 +40,11 @@ class ChatMessage(QWidget):
 		self.setLayout(layout)
 
 	def append_message(self, new_message):
+
 		try:
 			merged_content = f"{self.extract_raw_content()}\n{new_message}"
 			self.full_html = self.safe_markdown_conversion(merged_content)
-			self.message_label.set_html_content(self.full_html)  # 修改此处调用方法
+			self.message_label.set_html_content(self.full_html)
 			self.adjustSize()
 		except Exception as e:
 			log.error(f"消息追加失败: {str(e)}")
@@ -79,6 +78,7 @@ class ChatMessage(QWidget):
                 <pre>原始内容: {escape(markdown_text[:500])}</pre>
             </div>
             """
+
 
 	def convert_markdown(self, text):
 		try:
@@ -226,38 +226,38 @@ class ChatMessage(QWidget):
 
 
 class SafeQLabel(QLabel):
+
 	def __init__(self, html, parent):
 		super().__init__(parent)
 		self.setWordWrap(True)
 		self.setTextFormat(Qt.RichText)
 		self.setTextInteractionFlags(Qt.TextBrowserInteraction)
 		self.setOpenExternalLinks(True)
-		self._html_content = ""  # 新增属性保存HTML内容
-		self.set_html_content(html)  # 通过自定义方法设置HTML
+		self._html_content = ""
+		self.set_html_content(html)
 		self.setSizePolicy(
 			QSizePolicy.Expanding,
 			QSizePolicy.Preferred
 		)
 
+
 	def set_html_content(self, html):
-		"""自定义设置HTML内容的方法，确保属性正确更新"""
 		self._html_content = html
-		super().setHtml(html)  # 调用父类的setHtml方法
+		self.setHtml(html)
 
 	def configure_style(self, is_me):
 		self.setStyleSheet(f"""
-            QLabel {{
-                background: {'#d1f7c4' if is_me else '#ffffff'};
-                border-radius: 8px;
-                padding: 12px;
-                border: 1px solid rgba(0,0,0,0.1);
-                color: {'#222' if is_me else '#444'};
-                margin: 0;
-            }}
-            QLabel a {{ color: {'#1a6b1d' if is_me else '#0366d6'}; }}
-        """)
+				QLabel {{
+					background: {'#d1f7c4' if is_me else '#ffffff'};
+					border-radius: 8px;
+					padding: 12px;
+					border: 1px solid rgba(0,0,0,0.1);
+					color: {'#222' if is_me else '#444'};
+					margin: 0;
+				}}
+				QLabel a {{ color: {'#1a6b1d' if is_me else '#0366d6'}; }}
+			""")
 
-	# 新增辅助方法（可选，用于统一文本设置）
 	def set_text_content(self, text):
 		self.setText(text)
 
@@ -301,6 +301,8 @@ class ChatList(QListWidget):
 			log.error(f"消息处理失败: {str(e)}")
 			self.show_error_message(str(e))
 
+
+
 	def should_append(self, is_me):
 		return (
 				self.last_sender == is_me and
@@ -320,6 +322,7 @@ class ChatList(QListWidget):
 			log.error(f"消息追加失败: {str(e)}")
 			self.create_new_item(f"[原始消息追加失败，显示为新消息]\n{content}", is_me)
 
+
 	def create_new_item(self, content, is_me):
 		item = QListWidgetItem()
 		widget = ChatMessage(content, is_me)
@@ -328,6 +331,17 @@ class ChatList(QListWidget):
 		self.setItemWidget(item, widget)
 		self.last_sender = is_me
 
+
+
+	def create_new_item(self, content, is_me):
+		item = QListWidgetItem()
+		widget = ChatMessage(content, is_me)
+		item.setSizeHint(widget.sizeHint())
+		self.addItem(item)
+		self.setItemWidget(item, widget)
+		self.last_sender = is_me
+
+
 	def show_error_message(self, error):
 		item = QListWidgetItem()
 		widget = QLabel(f"<span style='color:red'> 错误: {escape(error)}</span>")
@@ -335,6 +349,7 @@ class ChatList(QListWidget):
 		item.setSizeHint(widget.sizeHint())
 		self.addItem(item)
 		self.setItemWidget(item, widget)
+
 
 	def send_message(self, content):
 		Signals.instance().send_message_to_ai(content)
