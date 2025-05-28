@@ -96,7 +96,7 @@ class AIAgent:
 			else:
 				parsed = StructuredOutputSchema(**json.loads(content))
 		except Exception as e:
-			print("\n❌ 解析失败，请检查模型输出格式。")
+			print("\n解析失败，请检查模型输出格式。")
 			print("错误信息：", e)
 			print("原始内容：", content)
 		return parsed
