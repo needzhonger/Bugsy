@@ -45,7 +45,7 @@ class ChatMessage(QWidget):
         try:
             merged_content = f"{self.extract_raw_content()}\n{new_message}"
             self.full_html = self.safe_markdown_conversion(merged_content)
-            self.message_label.set_html_content(self.full_html)  # 修改此处调用方法
+            self.message_label.set_html_content(self.full_html)
             self.adjustSize()
         except Exception as e:
             log.error(f"消息追加失败: {str(e)}")
@@ -85,7 +85,7 @@ class ChatMessage(QWidget):
             return markdown(
                 text,
                 extensions=[
-                    'fenced_code',
+                    'fenced_code', 
                     'codehilite',
                     'tables',
                     'nl2br',
@@ -232,17 +232,16 @@ class SafeQLabel(QLabel):
         self.setTextFormat(Qt.RichText)
         self.setTextInteractionFlags(Qt.TextBrowserInteraction)
         self.setOpenExternalLinks(True)
-        self._html_content = ""  # 新增属性保存HTML内容
-        self.set_html_content(html)  # 通过自定义方法设置HTML
+        self._html_content = ""
+        self.set_html_content(html)
         self.setSizePolicy(
             QSizePolicy.Expanding,
             QSizePolicy.Preferred
         )
 
     def set_html_content(self, html):
-        """自定义设置HTML内容的方法，确保属性正确更新"""
         self._html_content = html
-        super().setHtml(html)  # 调用父类的setHtml方法
+        self.setHtml(html) 
 
     def configure_style(self, is_me):
         self.setStyleSheet(f"""
@@ -257,7 +256,6 @@ class SafeQLabel(QLabel):
             QLabel a {{ color: {'#1a6b1d' if is_me else '#0366d6'}; }}
         """)
 
-    # 新增辅助方法（可选，用于统一文本设置）
     def set_text_content(self, text):
         self.setText(text)
 
@@ -303,23 +301,22 @@ class ChatList(QListWidget):
 
     def should_append(self, is_me):
         return (
-                self.last_sender == is_me and
-                self.count() > 0 and
-                (item := self.item(self.count() - 1)) and
-                (widget := self.itemWidget(item))
+            self.last_sender == is_me and
+            self.count() > 0 and
+            (item := self.item(self.count() - 1)) and
+            (widget := self.itemWidget(item))
         )
 
-   def append_to_last(self, content, is_me):
-
-    last_item = self.item(self.count() - 1)
-    widget = self.itemWidget(last_item)
-    try:
-        widget.append_message(content)
-        last_item.setSizeHint(widget.sizeHint())
-    except Exception as e:
-        log.error(f"消息追加失败: {str(e)}")
-        self.create_new_item(f"[原始消息追加失败，显示为新消息]\n{content}", is_me)
-	    
+    def append_to_last(self, content, is_me):
+        last_item = self.item(self.count() - 1)
+        widget = self.itemWidget(last_item)
+        try:
+            widget.append_message(content)
+            last_item.setSizeHint(widget.sizeHint())
+        except Exception as e:
+            log.error(f"消息追加失败: {str(e)}")
+            self.create_new_item(f"[原始消息追加失败，显示为新消息]\n{content}", is_me)
+            
     def create_new_item(self, content, is_me):
         item = QListWidgetItem()
         widget = ChatMessage(content, is_me)
