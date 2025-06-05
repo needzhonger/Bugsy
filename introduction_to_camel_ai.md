@@ -24,13 +24,27 @@ pip install sqlalchemy
 
 pip install pandas
 
-#### 其它
+#### 用于html
+
 pip install tinycss2
 pip install markdown pygments bleach beautifulsoup4
+
+#### 用于RAG的
+
+pip install qdrant-client
+pip install unstructured
+pip install libmagic
+
+科学上网，以下语句会自动下载embedding模型:
+```python
+from camel.embeddings import SentenceTransformerEncoder
+
+encoder = SentenceTransformerEncoder(model_name='model_name')
+```
+
 # 搭建智能体
 
 ## 搭建一个模型（使用硅基流动API）
-
 
 ### 创建并进行一次对话
 
@@ -48,7 +62,7 @@ model = ModelFactory.create(
 )
 
 # 将模型放进智能体
-agent = ChatAgent(model=model,output_language='中文')
+agent = ChatAgent(model=model, output_language='中文')
 
 # 进行对话
 response = agent.step("你好，你是谁？")  # 使用step()进行一次对话
@@ -141,6 +155,6 @@ while True:
 	task_prompt = input("请输入任务\n")
 	user_role_name = input("请输入用户角色")
 	assistant_role_name = input("请输入AI助手角色")
-	use_task_specify = True if input("是否使用任务细化功能:\ny:使用    n:不使用\n")=='y' else False
+	use_task_specify = True if input("是否使用任务细化功能:\ny:使用    n:不使用\n") == 'y' else False
 	communication(task_prompt, assistant_role_name, user_role_name, use_task_specify)
 ```
