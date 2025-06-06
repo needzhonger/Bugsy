@@ -88,3 +88,7 @@ def extract_txt_text(txt_path, encoding="utf-8"):
 		log.error(f"TXT 读取失败: {e}")
 		success = False
 	return success, text
+
+if __name__=='__main__':
+	while True:
+		print(extract_text_auto(input("输入文件地址（英文）\n"))[1])
