@@ -6,4 +6,5 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
-/env
+core/API_KEY.env
+core/RAG_files
