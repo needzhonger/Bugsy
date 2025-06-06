@@ -34,11 +34,17 @@ pip install markdown pygments bleach beautifulsoup4
 pip install qdrant-client
 pip install unstructured
 pip install libmagic
+pip install python-magic
+pip install python-magic-bin  # Windows 专用二进制依赖
+pip install python-docx
+pip install pymupdf
 
 科学上网，以下语句会自动下载embedding模型:
+
 ```python
 from camel.embeddings import SentenceTransformerEncoder
 
+# 保存路径：C:\Users\用户名\.cache\huggingface
 encoder = SentenceTransformerEncoder(model_name='model_name')
 ```
 

@@ -1,6 +1,7 @@
 from camel.embeddings import SentenceTransformerEncoder
 from camel.retrievers import VectorRetriever
 from camel.storages.vectordb_storages import QdrantStorage
+from FileReader import extract_text_auto
 from common import *
 
 log = logging.getLogger(__name__)
@@ -42,21 +43,20 @@ class RAGStorage:
 		self.vr = VectorRetriever(self.encoder, self.vector_storage)
 
 	def process_file(self, content_input_path):
-		"""读取文件内容"""
-		with open(content_input_path, 'r', encoding='utf-8') as f:
-			raw_text = f.read()
-			if not raw_text.strip():
-				log.error(f"文件 {content_input_path} 内容为空")
-				return
-
-		self.vr.process(
-			content=raw_text,  # 传入的是文件的内容
-			chunk_type="chunk_by_title",  # 按标题分块
-			max_characters=1000,  # 分块容量
-			extra_info={"source": content_input_path},
-			metadata_filename=content_input_path,
-			chunker=self.chunker,  # 使用自定义分块器
-		)
+		"""读取文件内容，支持txt,pdf,docx，仅支持文本"""
+		success, raw_text = extract_text_auto(content_input_path)
+		if success:
+			self.vr.process(
+				content=raw_text,  # 传入的是文件的内容
+				chunk_type="chunk_by_title",  # 按标题分块
+				max_characters=1000,  # 分块容量
+				extra_info={"source": content_input_path},
+				metadata_filename=content_input_path,
+				chunker=self.chunker,  # 使用自定义分块器
+			)
+		else:
+			# TODO:与前端连接
+			log.error(f"不支持的文件类型: {content_input_path}")
 
 	def process_url(self, path):
 		"""读取网址"""
@@ -97,7 +97,7 @@ if __name__ == '__main__':
 	rag_storage = RAGStorage(similarity_threshold=0.6, top_k=1)
 
 	while True:
-		order = input("\n添加文件网址:1    添加网址:2    搜索已添加的内容:3\n")
+		order = input("\n添加文件:1    添加网址:2    搜索已添加的内容:3\n")
 		if order == '1':
 			content_path = input("Provide the path to our content input (can be a file or URL)\n")
 			rag_storage.process_file(content_path)
