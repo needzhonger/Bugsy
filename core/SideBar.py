@@ -39,7 +39,7 @@ class SideBar(QFrame):
                     border-radius: 4px;
                 }
                 QPushButton:pressed {
-					background-color: palette(mid);
+					background-color: palette(light);
 				}
             """)
 			set_font(btn,1)

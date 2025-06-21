@@ -1,378 +1,231 @@
-from html import escape
 from .common import *
-from markdown import markdown
-from pygments import highlight
-from pygments.lexers import get_lexer_by_name, TextLexer
-from pygments.formatters import HtmlFormatter
-from pygments.util import ClassNotFound
-from bleach import clean
-from bleach.css_sanitizer import CSSSanitizer
 from .Signals import Signals
-from bs4 import BeautifulSoup
 
 log = logging.getLogger(__name__)
 
 
-class ChatMessage(QWidget):
-	def __init__(self, message, is_me, avatar_path=None, parent=None):
-		super().__init__(parent)
-		self.is_me = is_me
-		self.full_html = ""
-		self.setup_ui(message)
+class ChatList(QTextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
-	def setup_ui(self, message):
-		if old_layout := self.layout():
-			temp_widget = QWidget()
-			temp_widget.setLayout(old_layout)
-			old_layout.deleteLater()
-
-		layout = QHBoxLayout()
-		margin = int(self.fontMetrics().averageCharWidth() * 3)
-		layout.setContentsMargins(margin, 8, margin, 8)
-
-		self.full_html = self.safe_markdown_conversion(message)
-
-		self.message_label = SafeQLabel(self.full_html, self)
-		self.message_label.setMinimumHeight(40)
-		self.message_label.configure_style(self.is_me)
-
-		layout.addWidget(self.message_label, 1)
-		self.setLayout(layout)
-
-	def append_message(self, new_message):
-
-		try:
-			merged_content = f"{self.extract_raw_content()}\n{new_message}"
-			self.full_html = self.safe_markdown_conversion(merged_content)
-			self.message_label.set_html_content(self.full_html)
-			self.adjustSize()
-		except Exception as e:
-			log.error(f"消息追加失败: {str(e)}")
-			self.message_label.set_text_content(f"<span style='color:red'>消息渲染错误: {escape(str(e))}</span>")
-
-	def extract_raw_content(self):
-		soup = BeautifulSoup(self.full_html, 'html.parser')
-		for tag in soup(['style', 'script']):
-			tag.decompose()
-		return soup.get_text(separator='\n').strip()
-
-	def safe_markdown_conversion(self, markdown_text):
-		try:
-			if not isinstance(markdown_text, str):
-				raise ValueError("非文本类型输入")
-
-			sanitized = self.sanitize_input(markdown_text)
-
-			html_content = self.convert_markdown(sanitized)
-			highlighted = self.add_code_highlight(html_content)
-			styled = self.wrap_full_html(highlighted)
-
-			return styled
-		except Exception as e:
-			log.exception("Markdown处理失败")
-			return f"""
-            <div class='error-box'>
-                <p> 内容渲染错误</p>
-                <pre>{escape(str(e))}</pre>
-                <hr>
-                <pre>原始内容: {escape(markdown_text[:500])}</pre>
-            </div>
+        self.setStyleSheet(
             """
+            QTextEdit {
+                border: none;
+                border-bottom: 1px solid palette(text);  
+            }
+            """
+        )
 
+        # 聊天状态控制
+        self.waiting_for_ai = False
+        self.has_typing_indicator = False
+        self.timeout = False
+        self.current_ai_response = ""
+        self.response_timer = None
 
-	def convert_markdown(self, text):
-		try:
-			return markdown(
-				text,
-				extensions=[
-					'fenced_code',
-					'codehilite',
-					'tables',
-					'nl2br',
-				],
-				output_format='html5'
-			)
-		except Exception as e:
-			raise RuntimeError(f"文档转换失败: {str(e)}") from e
+        self.setReadOnly(True)
+        self.setAcceptRichText(True)
 
-	def add_code_highlight(self, html):
-		try:
-			soup = BeautifulSoup(html, 'html.parser')
-			formatter = HtmlFormatter(
-				style="material",
-				noclasses=True,
-				cssstyles="""
-                    background: #f8f9fa !important; 
-                    border-radius: 4px;
-                    padding: 1em;
-                    margin: 1em 0;
-                    overflow-x: auto;
-                """
-			)
+        self._setup_html_template()
 
-			for pre_tag in soup.find_all('pre'):
-				code_tag = pre_tag.find('code')
-				if not code_tag:
-					continue
-
-				lang = 'text'
-				classes = code_tag.get('class', [])
-				if classes:
-					lang_class = next((c for c in classes if c.startswith('language-')), None)
-					if lang_class:
-						lang = lang_class.split('-')[-1]
-
-				try:
-					lexer = get_lexer_by_name(lang, stripall=True)
-				except ClassNotFound:
-					lexer = TextLexer()
-
-				try:
-					highlighted = highlight(
-						code_tag.get_text(),
-						lexer,
-						formatter
-					)
-					new_tag = soup.new_tag('div')
-					new_tag.append(BeautifulSoup(highlighted, 'html.parser'))
-					pre_tag.replace_with(new_tag)
-				except Exception as e:
-					log.warning(f"代码高亮失败: {str(e)}")
-					error_tag = soup.new_tag('div', style='color:red;')
-					error_tag.string = f"代码高亮错误: {str(e)}"
-					pre_tag.replace_with(error_tag)
-
-			return str(soup)
-		except Exception as e:
-			log.error(f"HTML处理异常: {str(e)}")
-			return html
-
-	def wrap_full_html(self, content):
-		return f"""
+    def _setup_html_template(self):
+        """设置HTML/CSS模板"""
+        self.html_template = """
         <!DOCTYPE html>
         <html>
         <head>
-        <style>
-            {HtmlFormatter(style="material").get_style_defs('.highlight')}
-            body {{
-                margin:0;
-                font-family: system-ui, -apple-system, sans-serif;
-                line-height: 1.6;
-                font-size: 15px;
-                color: {'#222' if self.is_me else '#444'};
-            }}
-            .error-box {{
-                background: #fff0f0;
-                border: 1px solid #ffb3b3;
-                padding: 1em;
-                border-radius: 4px;
-            }}
-            pre {{
-                background: #f8f9fa !important;
-                border-radius: 4px !important;
-                margin: 1em 0 !important;
-                padding: 1em !important;
-                overflow-x: auto;
-            }}
-            code {{ 
-                padding: 0.2em 0.4em;
-                background: #f8f9fa;
-                border-radius: 3px;
-            }}
-            table {{
-                border-collapse: collapse;
-                margin: 1em 0;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            }}
-            th, td {{ padding: 0.75em; border: 1px solid #dee2e6; }}
-            th {{ background: #f8f9fa; }}
-            a {{ color: #0366d6; text-decoration: none; }}
-            a:hover {{ text-decoration: underline; }}
-            img {{ max-width: 100%; height: auto; }}
-            .highlight {{
-                background: transparent !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }}
-        </style>
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    font-size: 16px;
+                    margin: 0;
+                    padding: 10px;
+                    background-color: #f5f5f5;
+                }}
+                .message-container {{
+                    margin-bottom: 15px;
+                    clear: both;
+                }}
+                .user-message {{
+                    background-color: #DEDEDE;
+                    border-radius: 18px 18px 0 18px;
+                    padding: 10px 15px;
+                    margin-bottom: 5px;
+                }}
+                .ai-message {{
+                    border: 1px solid #ddd;
+                    border-radius: 18px 18px 18px 0;
+                    padding: 10px 15px;
+                    margin-bottom: 5px;
+                }}
+                pre {{
+                    background-color: #f0f0f0;
+                    padding: 10px;
+                    border-radius: 5px;
+                    overflow-x: auto;
+                    font-family: 'Consolas', monospace;
+                }}
+                .typing-indicator {{
+                    display: inline-block;
+                    margin-left: 5px;
+                }}
+                .typing-dot {{
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background-color: #888;
+                    margin-right: 3px;
+                    opacity: 0;
+                    animation: typingAnimation 1.4s infinite ease-in-out;
+                }}
+                .typing-dot:nth-child(1) {{ animation-delay: 0s; }}
+                .typing-dot:nth-child(2) {{ animation-delay: 0.2s; }}
+                .typing-dot:nth-child(3) {{ animation-delay: 0.4s; }}
+                @keyframes typingAnimation {{
+                    0% {{ opacity: 0.3; transform: translateY(0); }}
+                    50% {{ opacity: 1; transform: translateY(-3px); }}
+                    100% {{ opacity: 0.3; transform: translateY(0); }}
+                }}
+            </style>
         </head>
-        <body>{content}</body>
+        <body>
+            {messages}
+        </body>
         </html>
         """
+        self.messages_html = ""
 
-	def sanitize_input(self, text):
-		return clean(
-			escape(text),
-			tags=[
-				'p', 'pre', 'code', 'blockquote', 'ul', 'ol', 'li',
-				'strong', 'em', 'a', 'img', 'table', 'thead', 'tbody',
-				'tr', 'th', 'td', 'br', 'hr', 'h1', 'h2', 'h3', 'div',
-				'span', 'details', 'summary'
-			],
-			attributes={
-				'a': ['href', 'title', 'rel'],
-				'img': ['src', 'alt', 'title', 'width', 'height'],
-				'div': ['class'],
-				'span': ['class'],
-				'details': ['open'],
-				'*': ['style']
-			},
-			protocols=['http', 'https', 'data'],
-			strip_comments=True,
-			css_sanitizer=CSSSanitizer(
-				allowed_css_properties=['color', 'font-weight', 'text-decoration']
-			)
-		)
+    def _add_message(self, sender, content, is_code=False):
+        """添加消息到聊天记录"""
+        if is_code:
+            message_html = f"""
+            <div class="message-container">
+                <div class="{sender}-message">
+                    <pre><code>{content}</code></pre>
+                </div>
+            </div>
+            """
+        else:
+            message_html = f"""
+            <div class="message-container">
+                <div class="{sender}-message">
+                    {content}
+                </div>
+            </div>
+            """
 
+        self.messages_html += message_html
+        self._update_chat_display()
 
-class SafeQLabel(QLabel):
+    def _update_chat_display(self):
+        """更新聊天显示区域"""
+        full_html = self.html_template.format(messages=self.messages_html)
+        self.setHtml(full_html)
+        # 滚动到底部
+        self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
 
-	def __init__(self, html, parent):
-		super().__init__(parent)
-		self.setWordWrap(True)
-		self.setTextFormat(Qt.RichText)
-		self.setTextInteractionFlags(Qt.TextBrowserInteraction)
-		self.setOpenExternalLinks(True)
-		self._html_content = ""
-		self.set_html_content(html)
-		self.setSizePolicy(
-			QSizePolicy.Expanding,
-			QSizePolicy.Preferred
-		)
+    def receive_message(self, user_text):
+        """处理用户发送消息"""
+        if self.waiting_for_ai:
+            return
 
+        # 添加用户消息
+        self._add_message("user", user_text)
 
-	def set_html_content(self, html):
-		self._html_content = html
-		self.setHtml(html)
+        # 禁用输入
+        self.waiting_for_ai = True
 
-	def configure_style(self, is_me):
-		self.setStyleSheet(f"""
-				QLabel {{
-					background: {'#d1f7c4' if is_me else '#ffffff'};
-					border-radius: 8px;
-					padding: 12px;
-					border: 1px solid rgba(0,0,0,0.1);
-					color: {'#222' if is_me else '#444'};
-					margin: 0;
-				}}
-				QLabel a {{ color: {'#1a6b1d' if is_me else '#0366d6'}; }}
-			""")
+        # 显示AI正在输入指示器
+        self._show_typing_indicator()
 
-	def set_text_content(self, text):
-		self.setText(text)
+        # 发送给AI
+        self.start_ai_response(user_text)
 
+    def _show_typing_indicator(self):
+        """显示AI正在输入的动画"""
+        self.messages_html += """
+        <div class="message-container">
+            <div class="ai-message">
+                思考中<span class="typing-indicator">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </span>
+            </div>
+        </div>
+        """
+        self._update_chat_display()
+        self.has_typing_indicator = True
 
-class ChatList(QListWidget):
-	def __init__(self, parent=None):
-		super().__init__(parent)
-		self.last_sender = None
-		self.setStyleSheet("""
-            QListWidget {
-                background: #f8f9fa;
-                border: none;
-                outline: none;
-            }
-            QListWidget::item { 
-                margin: 6px 0;
-                border: none;
-            }
-        """)
-		self.setVerticalScrollMode(QListWidget.ScrollPerPixel)
-		self.verticalScrollBar().setSingleStep(20)
-		self.setSpacing(4)
+    def _remove_typing_indicator(self):
+        """移除AI正在输入的动画"""
+        self.messages_html = self.messages_html[: self.messages_html.rfind("思考中")]
+        self._update_chat_display()
+        self.has_typing_indicator = False
 
-	def receive_message(self, content, is_me):
-		try:
-			if not isinstance(content, str) or not content.strip():
-				raise ValueError("无效消息内容")
+    def start_ai_response(self, user_message):
+        """发送给AI"""
+        # 清空当前AI响应
+        self.current_ai_response = ""
 
-			content = content.replace('\x00', '').strip()
+        # 发送
+        #Signals.instance().send_message_to_ai(user_message)
 
-			if self.should_append(is_me):
-				self.append_to_last(content, is_me)
-			else:
-				self.create_new_item(content, is_me)
+    def now_is_timeout(self):
+        self.timeout = True
+        self._enable_user_input()
 
-			if is_me:
-				self.send_message(content)
+    def update_ai_response(self, content):
+        """接收AI回答"""
+        # 移除"正在输入"指示器
+        if self.has_typing_indicator:
+            self._remove_typing_indicator()
 
-			self.scrollToBottom()
-		except Exception as e:
-			log.error(f"消息处理失败: {str(e)}")
-			self.show_error_message(str(e))
+        if content == "<EOS>" or self.timeout:
+            # 响应完成或超时,允许用户输入
+            self._enable_user_input()
 
+        else:
+            if self.waiting_for_ai:
 
+                # 20s后，视为超时，响应强制停止
+                self.timeout = False
+                # 如果已有计时器，先停止
+                if self.response_timer and self.response_timer.isActive():
+                    self.response_timer.stop()
+                # 创建定时器
+                self.response_timer = QTimer()
+                self.response_timer.setSingleShot(True)  # 设置为单次触发
+                # 连接超时信号到回调函数
+                self.response_timer.timeout.connect(self.now_is_timeout)
+                # 启动定时器
+                self.response_timer.start(20000)
 
-	def should_append(self, is_me):
-		return (
-				self.last_sender == is_me and
-				self.count() > 0 and
-				(item := self.item(self.count() - 1)) and
-				(widget := self.itemWidget(item))
-		)
+                # 如果是第一个块，先添加AI消息容器
+                if not self.current_ai_response:
+                    self.messages_html += """
+                    <div class="message-container">
+                        <div class="ai-message">
+                    """
 
+                self.current_ai_response += content + "<br>"
 
-	def append_to_last(self, content, is_me):
-		last_item = self.item(self.count() - 1)
-		widget = self.itemWidget(last_item)
-		try:
-			widget.append_message(content)
-			last_item.setSizeHint(widget.sizeHint())
-		except Exception as e:
-			log.error(f"消息追加失败: {str(e)}")
-			self.create_new_item(f"[原始消息追加失败，显示为新消息]\n{content}", is_me)
+                # 如果是代码块（简单检测）TODO
+                self.messages_html += content
 
+                # 更新显示
+                self._update_chat_display()
 
-	def create_new_item(self, content, is_me):
-		item = QListWidgetItem()
-		widget = ChatMessage(content, is_me)
-		item.setSizeHint(widget.sizeHint())
-		self.addItem(item)
-		self.setItemWidget(item, widget)
-		self.last_sender = is_me
-
-
-
-	def create_new_item(self, content, is_me):
-		item = QListWidgetItem()
-		widget = ChatMessage(content, is_me)
-		item.setSizeHint(widget.sizeHint())
-		self.addItem(item)
-		self.setItemWidget(item, widget)
-		self.last_sender = is_me
-
-
-	def show_error_message(self, error):
-		item = QListWidgetItem()
-		widget = QLabel(f"<span style='color:red'> 错误: {escape(error)}</span>")
-		widget.setStyleSheet("padding: 8px;")
-		item.setSizeHint(widget.sizeHint())
-		self.addItem(item)
-		self.setItemWidget(item, widget)
-
-
-	def send_message(self, content):
-		Signals.instance().send_message_to_ai(content)
-
-
-if __name__ == "__main__":
-	from PySide6.QtWidgets import QApplication
-	import sys
-
-	logging.basicConfig(level=logging.INFO)
-
-	app = QApplication(sys.argv)
-	Signals.instance().chat_agent_response_signal.connect(lambda msg: print(f"AI收到消息: {msg}"))
-
-	chat_list = ChatList()
-	chat_list.receive_message("用户消息测试", True)
-	chat_list.receive_message("这是一条markdown测试：\n\n```python\nprint('Hello World!')\n```", True)
-
-	window = QWidget()
-	layout = QHBoxLayout()
-	layout.addWidget(chat_list)
-	window.setLayout(layout)
-	window.resize(600, 400)
-	window.show()
-
-	sys.exit(app.exec())
+    def _enable_user_input(self):
+        """完成AI响应后启用用户输入"""
+        # 关闭AI消息容器
+        self.messages_html += """
+                </div>
+            </div>
+        """
+        self._update_chat_display()
+        self.waiting_for_ai = False
+        if self.response_timer and self.response_timer.isActive():
+            self.response_timer.stop()
