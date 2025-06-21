@@ -171,7 +171,7 @@ class ChatList(QTextEdit):
         self.current_ai_response = ""
 
         # 发送
-        #Signals.instance().send_message_to_ai(user_message)
+        Signals.instance().send_message_to_ai(user_message)
 
     def now_is_timeout(self):
         self.timeout = True
