@@ -4,7 +4,7 @@ from camel.societies import RolePlaying
 from camel.utils import print_text_animated
 from camel.agents import ChatAgent
 from pydantic import BaseModel
-from Model import model
+from .Model import model
 import json
 
 

@@ -1,8 +1,6 @@
-from common import *
-from Model import vision_model
+from .common import *
+from .Model import vision_model
 from PIL import Image
-from io import BytesIO
-import requests
 
 
 class ImageAgent:
@@ -31,20 +29,16 @@ class ImageAgent:
 			if response and response.info:
 				print(response.info)
 
-	def receive_message(self, img, question):
+	def receive_message(self, path, question):
 		"""从前端接收信息"""
-		# image是图片文件路径，question是问题
-		if "http" in img:
-			response = requests.get(img)  # 用request可能有反爬虫？
-			image = Image.open(BytesIO(response.content))
-		else:
-			image = Image.open(img)
+		# path是图片文件路径，question是问题
+		image = Image.open(path)
 		self.image_analysis(image, question)
 
 
 if __name__ == "__main__":
 	test_agent = ImageAgent(vision_model)
 	while True:
-		img = input("请输入图片路径（本地或网址）\n")  # 发送的路径不能有引号，不需要用'\'转义
+		img = input("请输入图片路径（本地）\n")  # 发送的路径不能有引号，不需要用'\'转义
 		question = input("请输入问题\n")
 		test_agent.receive_message(img, question)

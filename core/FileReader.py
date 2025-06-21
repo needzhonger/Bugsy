@@ -1,7 +1,7 @@
 import magic
 import fitz
 from docx import Document
-from common import *
+from .common import *
 
 log = logging.getLogger('FileReader')
 

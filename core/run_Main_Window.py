@@ -1,5 +1,4 @@
 from PySide6.QtCore import Qt
-
 from .common import *
 from .MainWindow import MainWindow
 

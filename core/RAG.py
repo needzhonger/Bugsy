@@ -1,8 +1,8 @@
 from camel.embeddings import SentenceTransformerEncoder
 from camel.retrievers import VectorRetriever
 from camel.storages.vectordb_storages import QdrantStorage
-from FileReader import extract_text_auto
-from common import *
+from .FileReader import extract_text_auto
+from .common import *
 
 log = logging.getLogger(__name__)
 
