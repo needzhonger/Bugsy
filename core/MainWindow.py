@@ -157,8 +157,7 @@ class MainWindow(QMainWindow):
         chat_list = ChatList()
 
         # 连接AI信号 TODO
-        Signals.instance().ai_response_signal.connect(
-			lambda message: chat_list._add_message(message))
+        Signals.instance().ai_response_signal.connect(lambda message: chat_list.update_ai_response(message))
         layout.addWidget(chat_list)
 
         # 输入文本框
