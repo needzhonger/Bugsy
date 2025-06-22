@@ -1,11 +1,13 @@
 from .common import *
 from .Signals import Signals
+import time
+import random
 
 log = logging.getLogger(__name__)
 
 
 class ChatList(QTextEdit):
-    def __init__(self, parent=None):
+    def __init__(self, id, parent=None):
         super().__init__(parent)
 
         self.setStyleSheet(
@@ -16,6 +18,10 @@ class ChatList(QTextEdit):
             }
             """
         )
+
+        self.id = id
+        self.img = None  # 图片
+        self.rag_query = None  # rag搜索结果
 
         # 聊天状态控制
         self.waiting_for_ai = False
@@ -165,13 +171,22 @@ class ChatList(QTextEdit):
         self._update_chat_display()
         self.has_typing_indicator = False
 
-    def start_ai_response(self, user_message):
+    def start_ai_response(self, *user_message):
         """发送给AI"""
         # 清空当前AI响应
         self.current_ai_response = ""
 
         # 发送
-        Signals.instance().send_message_to_ai(user_message)
+        if self.id == 0:
+            Signals.instance().send_message_to_dabug_agent(user_message[0])
+        elif self.id == 1:
+            Signals.instance().send_message_to_ai(user_message[0])
+        elif self.id == 2:
+            Signals.instance().send_message_to_image_agent(
+                user_message[0], user_message[1], user_message[2]
+            )
+        else:
+            Signals.instance().send_message_to_rag_agent(user_message[0])
 
     def now_is_timeout(self):
         self.timeout = True
@@ -229,3 +244,13 @@ class ChatList(QTextEdit):
         self.waiting_for_ai = False
         if self.response_timer and self.response_timer.isActive():
             self.response_timer.stop()
+
+    def get_ai_response(self, data_list, min_delay=0.05, max_delay=0.2):
+        print("ChatWindow收到ai回复")
+        for item in data_list:
+            if self.waiting_for_ai:
+                self.update_ai_response(item)
+                # 在词语间添加随机延迟
+                time.sleep(random.uniform(min_delay, max_delay))
+            else:
+                break

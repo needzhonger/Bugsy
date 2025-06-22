@@ -97,7 +97,12 @@ class MainWindow(QMainWindow):
 
         # 设置AI TODO
         self.chat_agent = MyChatAgent(model=model)
-        Signals.instance().to_ai_signal.connect(lambda x: self.chat_agent.stream_response(x))
+        Signals.instance().to_chat_agent_signal.connect(
+            lambda x: self.chat_agent.receive_message(x)
+        )
+        self.debug_agent=None
+        self.image_agent=None
+        self.rag_agent=None
 
     def show_login_window(self):
         if not self.have_login_window:
@@ -127,12 +132,14 @@ class MainWindow(QMainWindow):
 
         # QMessageBox.information(self, "注册", "注册窗口弹出（未实现）")
 
-    def create_chat_window(self):
+    def create_debug_window(self):
         chat_widget = QWidget()
         layout = QVBoxLayout()
         chat_widget.setLayout(layout)# 内容区域布局
         layout.setContentsMargins(20, 5, 20, 20)
 
+        top_layout=QHBoxLayout()
+        layout.addLayout(top_layout)
         sidebar_btn = QPushButton('<')  # 控制侧边栏的按钮
         sidebar_btn.setStyleSheet("""
 										QPushButton {
@@ -152,12 +159,20 @@ class MainWindow(QMainWindow):
 										""")
         set_font(sidebar_btn)
         sidebar_btn.clicked.connect(partial(self.toggle_sidebar, btn=sidebar_btn))
-        layout.addWidget(sidebar_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        top_layout.addWidget(sidebar_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        top_layout.addStretch(1)
 
-        chat_list = ChatList()
+        title_label=QLabel("DeBug")
+        set_font(title_label)
+        top_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        top_layout.addStretch(1)
+
+        chat_list = ChatList(0)
 
         # 连接AI信号 TODO
-        Signals.instance().ai_response_signal.connect(lambda message: chat_list.update_ai_response(message))
+        Signals.instance().debug_agent_response_signal.connect(
+            lambda message: chat_list.get_ai_response(message)
+        )
         layout.addWidget(chat_list)
 
         # 输入文本框
@@ -198,12 +213,273 @@ class MainWindow(QMainWindow):
         layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
         return chat_widget, input_box, chat_list
 
+    def create_chat_window(self):
+        chat_widget = QWidget()
+        layout = QVBoxLayout()
+        chat_widget.setLayout(layout)  # 内容区域布局
+        layout.setContentsMargins(20, 5, 20, 20)
+
+        top_layout=QHBoxLayout()
+        layout.addLayout(top_layout)
+        sidebar_btn = QPushButton("<")  # 控制侧边栏的按钮
+        sidebar_btn.setStyleSheet(
+                                        """
+										QPushButton {
+										background-color: transparent;
+										border: none;
+										padding: 0;
+										margin: 0;
+										text-align: center;
+										color: #a0a0a0;
+										}
+										QPushButton:hover {
+										color: #07C160;
+										}
+										QPushButton:pressed {
+										color: #05974C;
+										}
+										"""
+        )
+        set_font(sidebar_btn)
+        sidebar_btn.clicked.connect(partial(self.toggle_sidebar, btn=sidebar_btn))
+        top_layout.addWidget(sidebar_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        top_layout.addStretch(1)
+
+        title_label = QLabel("文字处理")
+        set_font(title_label)
+        top_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        top_layout.addStretch(1)
+
+        chat_list = ChatList(1)
+
+        # 连接AI信号 TODO
+        Signals.instance().chat_agent_response_signal.connect(
+            lambda message: chat_list.get_ai_response(message)
+        )
+        layout.addWidget(chat_list)
+
+        # 输入文本框
+        input_box = QTextEdit()
+        input_box.setMaximumHeight(100)
+        set_font(input_box)
+        input_box.setStyleSheet(
+            """
+								            QTextEdit {
+								                background: transparent;
+								                border: none;
+								                border-radius: 5px;
+								                padding: 5px;
+								            }
+								        """
+        )
+        layout.addWidget(input_box)
+
+        # 发送按钮
+        send_btn = QPushButton("发送")
+        send_btn.setFixedSize(100, 30)
+        set_font(send_btn)
+        send_btn.setStyleSheet(
+            """
+						QPushButton {
+		                    background-color: palette(light);
+		                    border: none;
+		                    color: #07C160;
+		                    padding: 0px;
+		                    text-align: center;
+		                }
+		                QPushButton:hover {
+		                    background-color: palette(midlight);
+		                    border-radius: 4px;
+		                }
+		                QPushButton:pressed {
+							background-color: palette(mid);
+						}
+						"""
+        )
+        send_btn.clicked.connect(partial(self.send_message, input_box, chat_list))
+        layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        return chat_widget, input_box, chat_list
+
+    def create_image_window(self):
+        chat_widget = QWidget()
+        layout = QVBoxLayout()
+        chat_widget.setLayout(layout)  # 内容区域布局
+        layout.setContentsMargins(20, 5, 20, 20)
+
+        top_layout=QHBoxLayout()
+        layout.addLayout(top_layout)
+        sidebar_btn = QPushButton("<")  # 控制侧边栏的按钮
+        sidebar_btn.setStyleSheet(
+            """
+										QPushButton {
+										background-color: transparent;
+										border: none;
+										padding: 0;
+										margin: 0;
+										text-align: center;
+										color: #a0a0a0;
+										}
+										QPushButton:hover {
+										color: #07C160;
+										}
+										QPushButton:pressed {
+										color: #05974C;
+										}
+										"""
+        )
+        set_font(sidebar_btn)
+        sidebar_btn.clicked.connect(partial(self.toggle_sidebar, btn=sidebar_btn))
+        top_layout.addWidget(sidebar_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        top_layout.addStretch(1)
+
+        title_label = QLabel("图片处理")
+        set_font(title_label)
+        top_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        top_layout.addStretch(1)
+
+        chat_list = ChatList(2)
+
+        # 连接AI信号 TODO
+        Signals.instance().image_agent_response_signal.connect(
+            lambda message: chat_list.get_ai_response(message)
+        )
+        layout.addWidget(chat_list)
+
+        # 输入文本框
+        input_box = QTextEdit()
+        input_box.setMaximumHeight(100)
+        set_font(input_box)
+        input_box.setStyleSheet(
+            """
+								            QTextEdit {
+								                background: transparent;
+								                border: none;
+								                border-radius: 5px;
+								                padding: 5px;
+								            }
+								        """
+        )
+        layout.addWidget(input_box)
+
+        # 发送按钮
+        send_btn = QPushButton("发送")
+        send_btn.setFixedSize(100, 30)
+        set_font(send_btn)
+        send_btn.setStyleSheet(
+            """
+						QPushButton {
+		                    background-color: palette(light);
+		                    border: none;
+		                    color: #07C160;
+		                    padding: 0px;
+		                    text-align: center;
+		                }
+		                QPushButton:hover {
+		                    background-color: palette(midlight);
+		                    border-radius: 4px;
+		                }
+		                QPushButton:pressed {
+							background-color: palette(mid);
+						}
+						"""
+        )
+        send_btn.clicked.connect(partial(self.send_message, input_box, chat_list))
+        layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        return chat_widget, input_box, chat_list
+
+    def create_rag_window(self):
+        chat_widget = QWidget()
+        layout = QVBoxLayout()
+        chat_widget.setLayout(layout)  # 内容区域布局
+        layout.setContentsMargins(20, 5, 20, 20)
+
+        top_layout=QHBoxLayout()
+        layout.addLayout(top_layout)
+        sidebar_btn = QPushButton("<")  # 控制侧边栏的按钮
+        sidebar_btn.setStyleSheet(
+            """
+										QPushButton {
+										background-color: transparent;
+										border: none;
+										padding: 0;
+										margin: 0;
+										text-align: center;
+										color: #a0a0a0;
+										}
+										QPushButton:hover {
+										color: #07C160;
+										}
+										QPushButton:pressed {
+										color: #05974C;
+										}
+										"""
+        )
+        set_font(sidebar_btn)
+        sidebar_btn.clicked.connect(partial(self.toggle_sidebar, btn=sidebar_btn))
+        top_layout.addWidget(sidebar_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        top_layout.addStretch(1)
+
+        title_label = QLabel("文档处理")
+        set_font(title_label)
+        top_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        top_layout.addStretch(1)
+
+        chat_list = ChatList(3)
+
+        # 连接AI信号 TODO
+        Signals.instance().rag_agent_response_signal.connect(
+            lambda message: chat_list.get_ai_response(message)
+        )
+        layout.addWidget(chat_list)
+
+        # 输入文本框
+        input_box = QTextEdit()
+        input_box.setMaximumHeight(100)
+        set_font(input_box)
+        input_box.setStyleSheet(
+            """
+								            QTextEdit {
+								                background: transparent;
+								                border: none;
+								                border-radius: 5px;
+								                padding: 5px;
+								            }
+								        """
+        )
+        layout.addWidget(input_box)
+
+        # 发送按钮
+        send_btn = QPushButton("发送")
+        send_btn.setFixedSize(100, 30)
+        set_font(send_btn)
+        send_btn.setStyleSheet(
+            """
+						QPushButton {
+		                    background-color: palette(light);
+		                    border: none;
+		                    color: #07C160;
+		                    padding: 0px;
+		                    text-align: center;
+		                }
+		                QPushButton:hover {
+		                    background-color: palette(midlight);
+		                    border-radius: 4px;
+		                }
+		                QPushButton:pressed {
+							background-color: palette(mid);
+						}
+						"""
+        )
+        send_btn.clicked.connect(partial(self.send_message, input_box, chat_list))
+        layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        return chat_widget, input_box, chat_list
+
     def setup_chatting_window(self):
         """
 		main_window创建
 		"""
         # 页面1
-        self.chatting_window_1, input_box1, chat_list1 = self.create_chat_window()
+        self.chatting_window_1, input_box1, chat_list1 = self.create_debug_window()
         self.chat_inputs["ChattingWindow1"] = input_box1
         self.chat_lists["ChattingWindow1"] = chat_list1
         self.add_page(self.main_stack, self.chatting_window_1, "ChattingWindow1")
@@ -215,13 +491,13 @@ class MainWindow(QMainWindow):
         self.add_page(self.main_stack, self.chatting_window_2, "ChattingWindow2")
 
         # 页面3
-        self.chatting_window_3, input_box3, chat_list3 = self.create_chat_window()
+        self.chatting_window_3, input_box3, chat_list3 = self.create_image_window()
         self.chat_inputs["ChattingWindow1"] = input_box3
         self.chat_lists["ChattingWindow1"] = chat_list3
         self.add_page(self.main_stack, self.chatting_window_3, "ChattingWindow3")
 
         # 页面4
-        self.chatting_window_4, input_box4, chat_list4 = self.create_chat_window()
+        self.chatting_window_4, input_box4, chat_list4 = self.create_rag_window()
         self.chat_inputs["ChattingWindow2"] = input_box4
         self.chat_lists["ChattingWindow2"] = chat_list4
         self.add_page(self.main_stack, self.chatting_window_4, "ChattingWindow4")

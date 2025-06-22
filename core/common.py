@@ -21,3 +21,4 @@ import json
 import os
 from dotenv import load_dotenv
 import logging
+from PIL import Image
