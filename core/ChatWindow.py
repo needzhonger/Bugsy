@@ -14,7 +14,9 @@ class ChatList(QTextEdit):
             """
             QTextEdit {
                 border: none;
+                border-top: 1px solid palette(text); 
                 border-bottom: 1px solid palette(text);  
+                background-color: #FAFAF7;   
             }
             """
         )
@@ -24,11 +26,9 @@ class ChatList(QTextEdit):
         self.rag_query = None  # rag搜索结果
 
         # 聊天状态控制
-        self.waiting_for_ai = False
-        self.has_typing_indicator = False
-        self.timeout = False
-        self.current_ai_response = ""
-        self.response_timer = None
+        self.waiting_for_ai = False  # AI是否正在响应
+        self.has_typing_indicator = False  # 判断“思考中……”标签是否存在
+        self.current_ai_response = False  # 判断是否是AI第一次响应
 
         self.setReadOnly(True)
         self.setAcceptRichText(True)
@@ -47,20 +47,20 @@ class ChatList(QTextEdit):
                     font-size: 16px;
                     margin: 0;
                     padding: 10px;
-                    background-color: #f5f5f5;
                 }}
                 .message-container {{
                     margin-bottom: 15px;
                     clear: both;
                 }}
                 .user-message {{
-                    background-color: #DEDEDE;
+                    background-color: #E8F0F5;
                     border-radius: 18px 18px 0 18px;
                     padding: 10px 15px;
                     margin-bottom: 5px;
                 }}
                 .ai-message {{
-                    border: 1px solid #ddd;
+                    background-color: #E8EDDF;
+                    border: 1px solid #D9C7B8;
                     border-radius: 18px 18px 18px 0;
                     padding: 10px 15px;
                     margin-bottom: 5px;
@@ -114,6 +114,7 @@ class ChatList(QTextEdit):
             </div>
             """
         else:
+            content = content.replace("\n", "<br>")
             message_html = f"""
             <div class="message-container">
                 <div class="{sender}-message">
@@ -146,6 +147,9 @@ class ChatList(QTextEdit):
         # 显示AI正在输入指示器
         self._show_typing_indicator()
 
+        # 更新
+        QApplication.instance().processEvents()
+
         # 发送给AI
         self.start_ai_response(user_text)
 
@@ -154,7 +158,7 @@ class ChatList(QTextEdit):
         self.messages_html += """
         <div class="message-container">
             <div class="ai-message">
-                思考中<span class="typing-indicator">
+                思考中……<span class="typing-indicator">
                     <span class="typing-dot"></span>
                     <span class="typing-dot"></span>
                     <span class="typing-dot"></span>
@@ -167,15 +171,14 @@ class ChatList(QTextEdit):
 
     def _remove_typing_indicator(self):
         """移除AI正在输入的动画"""
-        self.messages_html = self.messages_html[: self.messages_html.rfind("思考中")]
+        self.messages_html = self.messages_html[: self.messages_html.rfind("思考中……")]
         self._update_chat_display()
         self.has_typing_indicator = False
 
     def start_ai_response(self, *user_message):
         """发送给AI"""
         # 清空当前AI响应
-        self.current_ai_response = ""
-
+        self.current_ai_response = False
         # 发送
         if self.id == 0:
             Signals.instance().send_message_to_dabug_agent(user_message[0])
@@ -188,46 +191,30 @@ class ChatList(QTextEdit):
         else:
             Signals.instance().send_message_to_rag_agent(user_message[0])
 
-    def now_is_timeout(self):
-        self.timeout = True
-        self._enable_user_input()
-
     def update_ai_response(self, content):
         """接收AI回答"""
-        # 移除"正在输入"指示器
+        # 移除"思考中……"指示器
         if self.has_typing_indicator:
             self._remove_typing_indicator()
 
-        if content == "<EOS>" or self.timeout:
-            # 响应完成或超时,允许用户输入
+        if content == "<EOS>":
+            # 响应完成,允许用户输入
             self._enable_user_input()
 
         else:
             if self.waiting_for_ai:
-
-                # 20s后，视为超时，响应强制停止
-                self.timeout = False
-                # 如果已有计时器，先停止
-                if self.response_timer and self.response_timer.isActive():
-                    self.response_timer.stop()
-                # 创建定时器
-                self.response_timer = QTimer()
-                self.response_timer.setSingleShot(True)  # 设置为单次触发
-                # 连接超时信号到回调函数
-                self.response_timer.timeout.connect(self.now_is_timeout)
-                # 启动定时器
-                self.response_timer.start(20000)
-
                 # 如果是第一个块，先添加AI消息容器
                 if not self.current_ai_response:
                     self.messages_html += """
                     <div class="message-container">
                         <div class="ai-message">
                     """
-
-                self.current_ai_response += content + "<br>"
+                    self.current_ai_response = True
 
                 # 如果是代码块（简单检测）TODO
+
+                # 如果不是
+                content = content.replace("\n", "<br>")
                 self.messages_html += content
 
                 # 更新显示
@@ -242,14 +229,15 @@ class ChatList(QTextEdit):
         """
         self._update_chat_display()
         self.waiting_for_ai = False
-        if self.response_timer and self.response_timer.isActive():
-            self.response_timer.stop()
 
-    def get_ai_response(self, data_list, min_delay=0.5, max_delay=2):
+    def get_ai_response(self, data_list, min_delay=0.1, max_delay=1):
         print("ChatWindow收到ai回复")
+        # print(data_list)
         for item in data_list:
             if self.waiting_for_ai:
                 self.update_ai_response(item)
+                # 更新
+                QApplication.instance().processEvents()
                 # 在词语间添加随机延迟
                 time.sleep(random.uniform(min_delay, max_delay))
             else:

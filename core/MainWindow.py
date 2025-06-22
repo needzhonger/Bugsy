@@ -25,6 +25,14 @@ class MainWindow(QMainWindow):
         screen_geometry = app.primaryScreen().availableGeometry()
         self.move(screen_geometry.width() // 2 - width // 2, screen_geometry.height() // 2 - height // 2)
 
+        self.setStyleSheet(
+            """
+            QMainWindow {
+                background-color: #F5F5F0;  
+            }
+        """
+        )
+
         # 动画管理集
         self.animations: dict[str, QPropertyAnimation] = {}
 
@@ -162,7 +170,7 @@ class MainWindow(QMainWindow):
         top_layout.addWidget(sidebar_btn, alignment=Qt.AlignmentFlag.AlignLeft)
         top_layout.addStretch(1)
 
-        title_label=QLabel("DeBug")
+        title_label=QLabel("Debug")
         set_font(title_label)
         top_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
         top_layout.addStretch(1)

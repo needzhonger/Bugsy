@@ -1,6 +1,7 @@
 from .common import *
 from .Signals import Signals
 
+#chat_agent
 
 class MyChatAgent(ChatAgent):
     """自定义聊天代理，实现流式响应"""
@@ -64,7 +65,7 @@ class MyChatAgent(ChatAgent):
                                 if content:
                                     buffer += content
                                     # 累积一定量再发送，减少信号触发频率
-                                    if len(buffer) >= 50 or "\n" in content:
+                                    if len(buffer) >= 20 or "\n" in content:
                                         self.send_message(buffer)
                                         buffer = ""
 
