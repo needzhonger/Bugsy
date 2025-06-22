@@ -8,6 +8,8 @@ from .Model import model
 from functools import partial
 from .register_and_login.ui_login import LoginWindow
 from .register_and_login.ui_register import RegisterWindow
+import tkinter as tk
+from tkinter import filedialog
 
 log = logging.getLogger(__name__)
 
@@ -390,7 +392,47 @@ class MainWindow(QMainWindow):
         )
         layout.addWidget(input_box)
 
-        # 发送按钮
+        # 发送按钮+图片选择
+        bottom_layout=QHBoxLayout()
+        bottom_layout.setSpacing(0)
+
+        self.img_path_edit = QLineEdit()
+        self.img_path_edit.setFixedHeight(35)
+        self.img_path_edit.setStyleSheet(
+            """QLineEdit {
+					border-radius: 5px;
+					border:1px solid palette(mid);
+					background:transparent
+				}"""
+        )
+        self.img_path_edit.setPlaceholderText("请选择图片路径")
+        set_font(self.img_path_edit)
+        bottom_layout.addWidget(self.img_path_edit)
+
+        img_btn = QPushButton("浏览...")
+        img_btn.setFixedSize(80, 35)
+        img_btn.setStyleSheet(
+            """
+		                QPushButton {
+		                    background-color: transparent;
+		                    border: 1px solid palette(mid);
+		                    border-radius: 4px;
+		                    padding: 0px;
+		                    text-align: center;
+		                }
+		                QPushButton:hover {
+		                    background-color: palette(midlight); /*轻微高亮*/
+		                    border-radius: 4px;
+		                }
+		                QPushButton:pressed {
+							background-color: palette(mid);
+						}
+		            """
+        )
+        set_font(img_btn)
+        img_btn.clicked.connect(self.select_img_path)
+        bottom_layout.addWidget(img_btn)
+
         send_btn = QPushButton("发送")
         send_btn.setFixedSize(100, 30)
         set_font(send_btn)
@@ -413,8 +455,26 @@ class MainWindow(QMainWindow):
 						"""
         )
         send_btn.clicked.connect(partial(self.send_message, input_box, chat_list))
-        layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        bottom_layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        layout.addLayout(bottom_layout)
         return chat_widget, input_box, chat_list
+
+    def select_img_path(self):
+        """选择图片"""
+        if sys.platform == "darwin":
+            file_filter = "Images (*.jpg *.png)"
+            file_path, _ = QFileDialog.getOpenFileName(
+                self, "选择图片", "", file_filter
+            )
+        else:
+            root = tk.Tk()
+            root.withdraw()
+            file_path = filedialog.askopenfilename(
+                title="选择图片",
+                filetypes=[("图片文件", "*.jpg *.jpeg *.png *.bmp")],
+            )
+        if file_path:
+            self.img_path_edit.setText(file_path)
 
     def create_rag_window(self):
         chat_widget = QWidget()
