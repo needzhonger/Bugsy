@@ -154,7 +154,7 @@ class ChatList(QTextEdit):
         self.start_ai_response(user_text)
 
     def _show_typing_indicator(self):
-        """显示AI正在输入的动画"""
+        """显示'思考中……'"""
         self.messages_html += """
         <div class="message-container">
             <div class="ai-message">
@@ -170,7 +170,7 @@ class ChatList(QTextEdit):
         self.has_typing_indicator = True
 
     def _remove_typing_indicator(self):
-        """移除AI正在输入的动画"""
+        """移除'思考中……'"""
         self.messages_html = self.messages_html[: self.messages_html.rfind("思考中……")]
         self._update_chat_display()
         self.has_typing_indicator = False
@@ -180,15 +180,15 @@ class ChatList(QTextEdit):
         # 清空当前AI响应
         self.current_ai_response = False
         # 发送
-        if self.id == 0:
-            Signals.instance().send_message_to_dabug_agent(user_message[0])
-        elif self.id == 1:
+        if self.id == 0:  # debug窗口
+            Signals.instance().send_message_to_debug_agent(user_message[0])
+        elif self.id == 1:  # 文字处理窗口
             Signals.instance().send_message_to_ai(user_message[0])
-        elif self.id == 2:
+        elif self.id == 2:  # 图片处理窗口
             Signals.instance().send_message_to_image_agent(
                 user_message[0], user_message[1], user_message[2]
             )
-        else:
+        else:  # rag窗口
             Signals.instance().send_message_to_rag_agent(user_message[0])
 
     def update_ai_response(self, content):
@@ -233,6 +233,8 @@ class ChatList(QTextEdit):
     def get_ai_response(self, data_list, min_delay=0.1, max_delay=1):
         print("ChatWindow收到ai回复")
         # print(data_list)
+        # 图片识别不支持流式响应，一次性回复
+        data_list.append("<EOS>")  # 保证gui的输出一定能正常结束
         for item in data_list:
             if self.waiting_for_ai:
                 self.update_ai_response(item)

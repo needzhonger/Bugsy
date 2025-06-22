@@ -49,7 +49,7 @@ class Signals(QObject):
         print("chat_agent_response_signal emitted")
         self.chat_agent_response_signal.emit(response)
 
-    def send_message_to_dabug_agent(self, content: str):
+    def send_message_to_debug_agent(self, content: str):
         print("to_debug_agent_signal emitted")
         self.to_debug_agent_signal.emit(content)
 

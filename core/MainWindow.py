@@ -23,7 +23,10 @@ class MainWindow(QMainWindow):
         # 获取屏幕尺寸，设置主窗口位置
         self.resize(width, height)
         screen_geometry = app.primaryScreen().availableGeometry()
-        self.move(screen_geometry.width() // 2 - width // 2, screen_geometry.height() // 2 - height // 2)
+        self.move(
+            screen_geometry.width() // 2 - width // 2,
+            screen_geometry.height() // 2 - height // 2,
+        )
 
         self.setStyleSheet(
             """
@@ -59,7 +62,7 @@ class MainWindow(QMainWindow):
         self.top_bar.addStretch()
 
         # 登录按钮
-        self.have_login_window = False # 标记是否已经存在登录窗口，避免重复加载登录窗口
+        self.have_login_window = False  # 标记是否已经存在登录窗口，避免重复加载登录窗口
         self.login_window = None
         self.login_button = QPushButton("登录")
         self.login_button.setFixedHeight(28)
@@ -67,7 +70,9 @@ class MainWindow(QMainWindow):
         self.login_button.clicked.connect(self.show_login_window)
 
         # 注册按钮
-        self.have_register_window = False  # 标记是否已经存在注册窗口，避免重复加载注册窗口
+        self.have_register_window = (
+            False  # 标记是否已经存在注册窗口，避免重复加载注册窗口
+        )
         self.login_window = None
         self.register_button = QPushButton("注册")
         self.register_button.setFixedHeight(28)
@@ -93,7 +98,9 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(self.main_stack)
 
         # 连接sidebar的信号
-        Signals.instance().page_change_signal.connect(partial(self.navigate_to, stack=self.main_stack))
+        Signals.instance().page_change_signal.connect(
+            partial(self.navigate_to, stack=self.main_stack)
+        )
 
         # 通过名称记录页面，使用字典映射
         self.main_stack_map = {}  # 名称→索引
@@ -103,14 +110,18 @@ class MainWindow(QMainWindow):
         self.chat_lists = {}  # 页面名 -> ChatList
         self.setup_chatting_window()  # 主界面
 
-        # 设置AI TODO
+        # 设置AI
         self.chat_agent = MyChatAgent(model=model)
         Signals.instance().to_chat_agent_signal.connect(
             lambda x: self.chat_agent.receive_message(x)
         )
-        self.debug_agent=None
-        self.image_agent=None
-        self.rag_agent=None
+        Signals.instance().to_debug_agent_signal.connect(
+            lambda x: self.chat_agent.receive_message(x)
+        )
+        Signals.instance().to_rag_agent_signal.connect(
+            lambda x: self.chat_agent.receive_message(x)
+        )
+        self.image_agent = None  # TODO
 
     def show_login_window(self):
         if not self.have_login_window:
@@ -118,7 +129,9 @@ class MainWindow(QMainWindow):
             self.login_window.show()
             self.have_login_window = True
         # 1. 取消最小化（恢复正常大小）
-        self.login_window.setWindowState(self.login_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
+        self.login_window.setWindowState(
+            self.login_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive
+        )
 
         # 2. 置顶显示
         self.login_window.raise_()  # 提升到其他窗口上方
@@ -132,7 +145,9 @@ class MainWindow(QMainWindow):
             self.register_window.show()
             self.have_register_window = True
         # 1. 取消最小化（恢复正常大小）
-        self.register_window.setWindowState(self.register_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
+        self.register_window.setWindowState(
+            self.register_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive
+        )
 
         # 2. 置顶显示
         self.register_window.raise_()  # 提升到其他窗口上方
@@ -143,13 +158,14 @@ class MainWindow(QMainWindow):
     def create_debug_window(self):
         chat_widget = QWidget()
         layout = QVBoxLayout()
-        chat_widget.setLayout(layout)# 内容区域布局
+        chat_widget.setLayout(layout)  # 内容区域布局
         layout.setContentsMargins(20, 5, 20, 20)
 
-        top_layout=QHBoxLayout()
+        top_layout = QHBoxLayout()
         layout.addLayout(top_layout)
-        sidebar_btn = QPushButton('<')  # 控制侧边栏的按钮
-        sidebar_btn.setStyleSheet("""
+        sidebar_btn = QPushButton("<")  # 控制侧边栏的按钮
+        sidebar_btn.setStyleSheet(
+            """
 										QPushButton {
 										background-color: transparent;
 										border: none;
@@ -164,13 +180,14 @@ class MainWindow(QMainWindow):
 										QPushButton:pressed {
 										color: #05974C;
 										}
-										""")
+										"""
+        )
         set_font(sidebar_btn)
         sidebar_btn.clicked.connect(partial(self.toggle_sidebar, btn=sidebar_btn))
         top_layout.addWidget(sidebar_btn, alignment=Qt.AlignmentFlag.AlignLeft)
         top_layout.addStretch(1)
 
-        title_label=QLabel("Debug")
+        title_label = QLabel("Debug")
         set_font(title_label)
         top_layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
         top_layout.addStretch(1)
@@ -187,21 +204,24 @@ class MainWindow(QMainWindow):
         input_box = QTextEdit()
         input_box.setMaximumHeight(100)
         set_font(input_box)
-        input_box.setStyleSheet("""
+        input_box.setStyleSheet(
+            """
 								            QTextEdit {
 								                background: transparent;
 								                border: none;
 								                border-radius: 5px;
 								                padding: 5px;
 								            }
-								        """)
+								        """
+        )
         layout.addWidget(input_box)
 
         # 发送按钮
         send_btn = QPushButton("发送")
         send_btn.setFixedSize(100, 30)
         set_font(send_btn)
-        send_btn.setStyleSheet("""
+        send_btn.setStyleSheet(
+            """
 						QPushButton {
 		                    background-color: palette(light);
 		                    border: none;
@@ -216,7 +236,8 @@ class MainWindow(QMainWindow):
 		                QPushButton:pressed {
 							background-color: palette(mid);
 						}
-						""")
+						"""
+        )
         send_btn.clicked.connect(partial(self.send_message, input_box, chat_list))
         layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
         return chat_widget, input_box, chat_list
@@ -227,11 +248,11 @@ class MainWindow(QMainWindow):
         chat_widget.setLayout(layout)  # 内容区域布局
         layout.setContentsMargins(20, 5, 20, 20)
 
-        top_layout=QHBoxLayout()
+        top_layout = QHBoxLayout()
         layout.addLayout(top_layout)
         sidebar_btn = QPushButton("<")  # 控制侧边栏的按钮
         sidebar_btn.setStyleSheet(
-                                        """
+            """
 										QPushButton {
 										background-color: transparent;
 										border: none;
@@ -314,7 +335,7 @@ class MainWindow(QMainWindow):
         chat_widget.setLayout(layout)  # 内容区域布局
         layout.setContentsMargins(20, 5, 20, 20)
 
-        top_layout=QHBoxLayout()
+        top_layout = QHBoxLayout()
         layout.addLayout(top_layout)
         sidebar_btn = QPushButton("<")  # 控制侧边栏的按钮
         sidebar_btn.setStyleSheet(
@@ -401,7 +422,7 @@ class MainWindow(QMainWindow):
         chat_widget.setLayout(layout)  # 内容区域布局
         layout.setContentsMargins(20, 5, 20, 20)
 
-        top_layout=QHBoxLayout()
+        top_layout = QHBoxLayout()
         layout.addLayout(top_layout)
         sidebar_btn = QPushButton("<")  # 控制侧边栏的按钮
         sidebar_btn.setStyleSheet(
@@ -484,8 +505,8 @@ class MainWindow(QMainWindow):
 
     def setup_chatting_window(self):
         """
-		main_window创建
-		"""
+        main_window创建
+        """
         # 页面1
         self.chatting_window_1, input_box1, chat_list1 = self.create_debug_window()
         self.chat_inputs["ChattingWindow1"] = input_box1
@@ -511,15 +532,15 @@ class MainWindow(QMainWindow):
         self.add_page(self.main_stack, self.chatting_window_4, "ChattingWindow4")
 
     def add_page(self, stack: QStackedWidget, widget: QWidget, name: str):
-        """"
-		向 stack 中添加页面
-		"""
+        """ "
+        向 stack 中添加页面
+        """
         self.main_stack_map[name] = stack.addWidget(widget)
 
     def navigate_to(self, name: str, stack: QStackedWidget):
         """
-		通过名称跳转页面
-		"""
+        通过名称跳转页面
+        """
         if name in self.main_stack_map:
             current_index = stack.currentIndex()
             target_index = self.main_stack_map[name]
