@@ -245,7 +245,7 @@ class ChatList(QTextEdit):
         if self.response_timer and self.response_timer.isActive():
             self.response_timer.stop()
 
-    def get_ai_response(self, data_list, min_delay=0.05, max_delay=0.2):
+    def get_ai_response(self, data_list, min_delay=0.5, max_delay=2):
         print("ChatWindow收到ai回复")
         for item in data_list:
             if self.waiting_for_ai:

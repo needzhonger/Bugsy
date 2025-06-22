@@ -34,7 +34,7 @@ class MyChatAgent(ChatAgent):
                 headers=headers,
                 json=data,
                 stream=True,
-                timeout=30,  # 设置超时时间
+                timeout=60,  # 设置超时时间
             ) as response:
 
                 # 检查HTTP状态码
@@ -72,13 +72,10 @@ class MyChatAgent(ChatAgent):
                                 print(f"Agent_1 JSON解析错误: {e}, 原始数据: {chunk_str}")
                                 continue
 
-            return True
-
         except requests.exceptions.RequestException as e:
             error_msg = f"请求异常: {str(e)}"
             print(f"Agent_1 {error_msg}")
             self.send_message(f"[ERROR] {error_msg}")
-            return False
 
         finally:
             self.send_result()
