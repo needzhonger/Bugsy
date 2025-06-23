@@ -10,16 +10,16 @@ class ChatList(QTextEdit):
     def __init__(self, id, parent=None):
         super().__init__(parent)
 
-        self.setStyleSheet(
-            """
-            QTextEdit {
-                border: none;
-                border-top: 1px solid palette(text); 
-                border-bottom: 1px solid palette(text);  
-                background-color: #FAFAF7;   
-            }
-            """
-        )
+        # self.setStyleSheet(
+        #     """
+        #     QTextEdit {
+        #         border: none;
+        #         border-top: 1px solid palette(text);
+        #         border-bottom: 1px solid palette(text);
+        #         background-color: #FAFAF7;
+        #     }
+        #     """
+        # )
 
         self.id = id
         self.img = None  # 图片
