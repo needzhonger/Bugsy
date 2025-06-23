@@ -12,13 +12,13 @@ class Signals(QObject):
     _instance = None
     page_change_signal = Signal(str)  # 翻页信号
     to_chat_agent_signal = Signal(str)  # 向AI发送问题的信号
-    chat_agent_response_signal = Signal(object)  # AI回复的信号
+    chat_agent_response_signal = Signal(list)  # AI回复的信号
     to_debug_agent_signal = Signal(str)
-    debug_agent_response_signal = Signal(object)
+    debug_agent_response_signal = Signal(list)
     to_image_agent_signal = Signal(Image.Image, str, bool)
-    image_agent_response_signal = Signal(object)
+    image_agent_response_signal = Signal(list)
     to_rag_agent_signal = Signal(str)
-    rag_agent_response_signal = Signal(object)
+    rag_agent_response_signal = Signal(list)
 
     @staticmethod
     def instance() -> "Signals":
@@ -39,36 +39,28 @@ class Signals(QObject):
         """
         向chat_agent发送问题
         """
-        print("to_chat_agent_signal emitted")
         self.to_chat_agent_signal.emit(content)
 
     def send_ai_response(self, response):
         """
         发送chat_agent回复
         """
-        print("chat_agent_response_signal emitted")
         self.chat_agent_response_signal.emit(response)
 
-    def send_message_to_debug_agent(self, content: str):
-        print("to_debug_agent_signal emitted")
+    def send_message_to_debug_agent(self, content):
         self.to_debug_agent_signal.emit(content)
 
-    def send_debug_agent_response(self, content: str):
-        print("debug_agent_response_signal emitted")
+    def send_debug_agent_response(self, content):
         self.debug_agent_response_signal.emit(content)
 
-    def send_message_to_image_agent(self, img, question: str, is_path=False):
-        print("to_image_agent_signal emitted")
+    def send_message_to_image_agent(self, img, question, is_path=True):
         self.to_image_agent_signal.emit(img, question, is_path)
 
-    def send_image_agent_response(self, content: str):
-        print("image_agent_response_signal emitted")
+    def send_image_agent_response(self, content):
         self.image_agent_response_signal.emit(content)
 
-    def send_message_to_rag_agent(self, content: str):
-        print("to_rag_agent_signal emitted")
+    def send_message_to_rag_agent(self, content):
         self.to_rag_agent_signal.emit(content)
 
-    def send_rag_agent_response(self, content: str):
-        print("rag_agent_response_signal emitted")
-        self.rag_agent_response_signal(content)
+    def send_rag_agent_response(self, content):
+        self.rag_agent_response_signal.emit(content)

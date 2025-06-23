@@ -1,7 +1,8 @@
 from .common import *
 from .Signals import Signals
 
-#chat_agent
+# chat_agent
+
 
 class MyChatAgent(ChatAgent):
     """自定义聊天代理，实现流式响应"""
@@ -11,8 +12,9 @@ class MyChatAgent(ChatAgent):
         self._model = model
         self.result = []  # 记录流式响应结果
 
-    def stream_response(self, prompt):
-        """处理流式响应
+    def stream_response(self, prompt, id: int):
+        """
+        处理流式响应
         prompt (str): 用户输入的提示词
         """
 
@@ -40,11 +42,11 @@ class MyChatAgent(ChatAgent):
 
                 # 检查HTTP状态码
                 if response.status_code != 200:
-                    print(f"Agent_1 API请求失败，状态码: {response.status_code}, 错误: {response.text}")
+                    print(
+                        f"Agent_1 API请求失败，状态码: {response.status_code}, 错误: {response.text}"
+                    )
                     self.send_message(f"[ERROR] {error_msg}")
-                    return False
-
-                buffer = ""  # 用于累积内容，减少信号触发频率
+                    return
 
                 for chunk in response.iter_lines():
                     if chunk:
@@ -52,25 +54,26 @@ class MyChatAgent(ChatAgent):
 
                         # 跳过心跳和结束事件
                         if chunk_str == "[DONE]":
-                            if buffer:  # 发送缓冲区剩余内容
-                                self.send_message(buffer)
                             break
 
                         if chunk_str.startswith("data:"):
                             try:
                                 chunk_data = json.loads(chunk_str[5:])  # 去掉 "data:"
+                                if chunk_data==" [DONE]":
+                                    break
                                 content = (
-                                    chunk_data.get("choices", [{}])[0].get("delta", {}).get("content", ""))
+                                    chunk_data.get("choices", [{}])[0]
+                                    .get("delta", {})
+                                    .get("content", "")
+                                )
 
                                 if content:
-                                    buffer += content
-                                    # 累积一定量再发送，减少信号触发频率
-                                    if len(buffer) >= 20 or "\n" in content:
-                                        self.send_message(buffer)
-                                        buffer = ""
+                                    self.send_message(content)
 
                             except json.JSONDecodeError as e:
-                                print(f"Agent_1 JSON解析错误: {e}, 原始数据: {chunk_str}")
+                                print(
+                                    f"Agent_1 JSON解析错误: {e}, 原始数据: {chunk_str}"
+                                )
                                 continue
 
         except requests.exceptions.RequestException as e:
@@ -79,19 +82,25 @@ class MyChatAgent(ChatAgent):
             self.send_message(f"[ERROR] {error_msg}")
 
         finally:
-            self.send_result()
+            self.send_result(id)
 
-    def receive_message(self, message):
+    def receive_message(self, message, id: int):
         """接收消息并触发流式响应"""
-        print(f"Agent_1开始处理:{message}")
-        self.stream_response(message)
+        print(f"Agent_1开始处理:{message};来自页面{id}")
+        self.stream_response(message, id)
 
     def send_message(self, message):
-        """发送消息到信号系统"""
+        """记录输出并打印"""
         self.result.append(message)
         print(message)
 
-    def send_result(self):
-        print("Agent_1 向ChatWindow发送结果")
+    def send_result(self, id: int):
+        print(f"Agent_1 向ChatWindow(id={id})发送结果")
         self.result.append("<EOS>")
-        Signals.instance().send_ai_response(self.result)
+        if id == 0:
+            Signals.instance().send_debug_agent_response(self.result)
+        elif id == 1:
+            Signals.instance().send_ai_response(self.result)
+        elif id == 3:
+            Signals.instance().send_rag_agent_response(self.result)
+        self.result.clear()

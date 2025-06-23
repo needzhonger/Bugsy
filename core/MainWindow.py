@@ -4,7 +4,8 @@ from .Signals import Signals
 from .ChatWindow import ChatList
 from .FontSetting import set_font
 from .Agent_1 import MyChatAgent
-from .Model import model
+from .ImageAgent import ImageAgent
+from .Model import model, vision_model
 from functools import partial
 from .register_and_login.ui_login import LoginWindow
 from .register_and_login.ui_register import RegisterWindow
@@ -114,16 +115,21 @@ class MainWindow(QMainWindow):
 
         # 设置AI
         self.chat_agent = MyChatAgent(model=model)
+        self.image_agent = ImageAgent(vision_model)
         Signals.instance().to_chat_agent_signal.connect(
-            lambda x: self.chat_agent.receive_message(x)
+            lambda x: self.chat_agent.receive_message(x, 1)
         )
         Signals.instance().to_debug_agent_signal.connect(
-            lambda x: self.chat_agent.receive_message(x)
+            lambda x: self.chat_agent.receive_message(x, 0)
+        )
+        Signals.instance().to_image_agent_signal.connect(
+            lambda img, question, is_path: self.image_agent.receive_message(
+                img, question, is_path
+            )
         )
         Signals.instance().to_rag_agent_signal.connect(
-            lambda x: self.chat_agent.receive_message(x)
+            lambda x: self.chat_agent.receive_message(x, 3)
         )
-        self.image_agent = None  # TODO
 
     def show_login_window(self):
         if not self.have_login_window:
@@ -393,7 +399,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(input_box)
 
         # 发送按钮+图片选择
-        bottom_layout=QHBoxLayout()
+        bottom_layout = QHBoxLayout()
         bottom_layout.setSpacing(0)
 
         self.img_path_edit = QLineEdit()

@@ -1,6 +1,6 @@
 from .common import *
-from .Model import vision_model
 from PIL import Image
+from .Signals import Signals
 
 
 class ImageAgent:
@@ -9,6 +9,7 @@ class ImageAgent:
     def __init__(self, _model):
         self.model = _model
         self.chat_agent = ChatAgent(model=self.model, output_language="中文")
+        self.result = []
 
     def image_analysis(self, image, question):
         """image是Image解析后的形式"""
@@ -23,22 +24,31 @@ class ImageAgent:
         response = self.chat_agent.step(image_msg)
 
         if response and response.msgs:
-            print_text_animated(response.msgs[0].content)
+            self.result.append(response.msgs[0].content)
         else:
-            print("未能获取到有效的回复。")
+            self.result.append("未能获取到有效的回复。")
             if response and response.info:
-                print(response.info)
+                self.result.append(response.info)
+
+        self.send_result()
 
     def receive_message(self, img, question, img_is_path=False):
         """从前端接收信息"""
+        print(f"ImageAgent开始处理:图片:{img.size};问题:{question}")
         if img_is_path:
             image = Image.open(img)
         self.image_analysis(image, question)
 
+    def send_result(self):
+        print("ImageAgent向ChatWindow发送结果")
+        self.result.append("<EOS>")
+        Signals.instance().send_image_agent_response(self.result)
+        self.result.clear()
 
-if __name__ == "__main__":
-    test_agent = ImageAgent(vision_model)
-    while True:
-        img = input("请输入图片路径（本地）\n")  # 发送的路径不能有引号，不需要用'\'转义
-        question = input("请输入问题\n")
-        test_agent.receive_message(img, question)
+
+# 用法示例:
+# test_agent = ImageAgent(vision_model)
+# while True:
+#     img = input("请输入图片路径（本地）\n")  # 发送的路径不能有引号，不需要用'\'转义
+#     question = input("请输入问题\n")
+#     test_agent.receive_message(img, question)

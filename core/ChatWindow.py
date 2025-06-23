@@ -184,7 +184,7 @@ class ChatList(QTextEdit):
             Signals.instance().send_message_to_debug_agent(user_message[0])
         elif self.id == 1:  # 文字处理窗口
             Signals.instance().send_message_to_ai(user_message[0])
-        elif self.id == 2:  # 图片处理窗口
+        elif self.id == 2:  # 图片处理窗口:图片、问题、是否是路径
             Signals.instance().send_message_to_image_agent(
                 user_message[0], user_message[1], user_message[2]
             )
@@ -228,10 +228,11 @@ class ChatList(QTextEdit):
             </div>
         """
         self._update_chat_display()
+        print(f"ChatWindow{id}AI响应完成")
         self.waiting_for_ai = False
 
-    def get_ai_response(self, data_list, min_delay=0.1, max_delay=1):
-        print("ChatWindow收到ai回复")
+    def get_ai_response(self, data_list: list, min_delay=0.01, max_delay=0.15):
+        print(f"ChatWindow(id={id})收到ai回复")
         # print(data_list)
         # 图片识别不支持流式响应，一次性回复
         data_list.append("<EOS>")  # 保证gui的输出一定能正常结束
