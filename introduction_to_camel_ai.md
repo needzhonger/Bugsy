@@ -6,11 +6,11 @@ pip install camel-ai
 
 #### 图像处理（需配合多模态模型）
 
-pip install pillow opencv-python
+pip install pillow opencv-python ？
 
 #### 向量数据库(用于知识库检索增强(RAG))
 
-pip install chromadb sentence-transformers
+pip install chromadb sentence-transformers ？
 
 #### 管理密钥的库
 
@@ -18,7 +18,7 @@ pip install python-dotenv
 
 #### 处理数据的库
 
-pip install sqlalchemy
+pip install sqlalchemy ？
 
 #### pandas
 
@@ -26,8 +26,8 @@ pip install pandas
 
 #### 用于html
 
-pip install tinycss2
-pip install markdown pygments bleach beautifulsoup4
+pip install tinycss2 ？
+pip install markdown pygments bleach beautifulsoup4 ？
 
 #### 用于RAG的
 

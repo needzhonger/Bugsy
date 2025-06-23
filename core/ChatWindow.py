@@ -25,6 +25,8 @@ class ChatList(QTextEdit):
         self.img = None  # 图片
         self.rag_query = None  # rag搜索结果
 
+        self.pending_code_block = None  # 未闭合的代码块缓存
+
         # 聊天状态控制
         self.waiting_for_ai = False  # AI是否正在响应
         self.has_typing_indicator = False  # 判断“思考中……”标签是否存在
@@ -59,14 +61,13 @@ class ChatList(QTextEdit):
                     margin-bottom: 5px;
                 }}
                 .ai-message {{
-                    background-color: #E8EDDF;
                     border: 1px solid #D9C7B8;
                     border-radius: 18px 18px 18px 0;
                     padding: 10px 15px;
                     margin-bottom: 5px;
                 }}
                 pre {{
-                    background-color: #f0f0f0;
+                    background-color: #E8EDDF;
                     padding: 10px;
                     border-radius: 5px;
                     overflow-x: auto;
@@ -191,7 +192,7 @@ class ChatList(QTextEdit):
         else:  # rag窗口
             Signals.instance().send_message_to_rag_agent(user_message[0])
 
-    def update_ai_response(self, content):
+    def update_ai_response(self, content:str):
         """接收AI回答"""
         # 移除"思考中……"指示器
         if self.has_typing_indicator:
@@ -199,6 +200,7 @@ class ChatList(QTextEdit):
 
         if content == "<EOS>":
             # 响应完成,允许用户输入
+            self._finalize_pending_code_block()  # 结束前强制闭合未完成的代码块
             self._enable_user_input()
 
         else:
@@ -211,14 +213,48 @@ class ChatList(QTextEdit):
                     """
                     self.current_ai_response = True
 
-                # 如果是代码块（简单检测）TODO
-
-                # 如果不是
-                content = content.replace("\n", "<br>")
-                self.messages_html += content
+                # 处理代码块标记
+                if "```" in content:
+                    self._handle_code_blocks(content)
+                else:
+                    # 普通文本处理
+                    if self.pending_code_block is not None:
+                        self.pending_code_block += content  # 累积到未闭合的代码块
+                    else:
+                        content = content.replace("\n", "<br>")
+                        self.messages_html += content
 
                 # 更新显示
                 self._update_chat_display()
+
+    def _handle_code_blocks(self, content:str):
+        """处理代码块标记的分割和闭合"""
+        parts = content.split("```")
+        for i, part in enumerate(parts):
+            if i % 2 == 1:
+                # 当前部分是代码块标记（奇数索引）
+                if self.pending_code_block is None:
+                    # 代码块开始
+                    self.pending_code_block = part
+                else:
+                    # 代码块结束
+                    code_content = (
+                        f"<pre><code>{self.pending_code_block}{part}</code></pre>"
+                    )
+                    self.messages_html += code_content
+                    self.pending_code_block = None
+            else:
+                # 普通文本
+                if self.pending_code_block is not None:
+                    self.pending_code_block += part  # 累积到代码块内容
+                else:
+                    self.messages_html += part.replace("\n", "<br>")
+
+    def _finalize_pending_code_block(self):
+        """强制闭合未完成的代码块（避免流式中断导致标记不闭合）"""
+        if self.pending_code_block is not None:
+            self.messages_html += f"<pre><code>{self.pending_code_block}</code></pre>"
+            self.pending_code_block = None
 
     def _enable_user_input(self):
         """完成AI响应后启用用户输入"""

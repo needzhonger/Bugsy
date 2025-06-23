@@ -9,6 +9,7 @@ from .Model import model, vision_model
 from functools import partial
 from .register_and_login.ui_login import LoginWindow
 from .register_and_login.ui_register import RegisterWindow
+from .RAG import RAGStorage
 import tkinter as tk
 from tkinter import filedialog
 
@@ -130,6 +131,7 @@ class MainWindow(QMainWindow):
         Signals.instance().to_rag_agent_signal.connect(
             lambda x: self.chat_agent.receive_message(x, 3)
         )
+        rag_storage = RAGStorage(similarity_threshold=0.6, top_k=1)
 
     def show_login_window(self):
         if not self.have_login_window:
