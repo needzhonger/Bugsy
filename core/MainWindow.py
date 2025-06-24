@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(
             """
             QMainWindow {
-                background-color: #F5F5F0;  
+                background-color: palette(window);  
             }
         """
         )

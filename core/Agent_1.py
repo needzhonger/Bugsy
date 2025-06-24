@@ -96,7 +96,6 @@ class MyChatAgent(ChatAgent):
 
     def send_result(self, id: int):
         print(f"Agent_1 向ChatWindow(id={id})发送结果")
-        self.result.append("<EOS>")
         if id == 0:
             Signals.instance().send_debug_agent_response(self.result)
         elif id == 1:

@@ -2,6 +2,7 @@ from .common import *
 from .Signals import Signals
 import time
 import random
+from markdown import markdown
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ class ChatList(QTextEdit):
                 border: none;
                 border-top: 1px solid palette(text); 
                 border-bottom: 1px solid palette(text);  
-                background-color: #FAFAF7;   
+                background-color: palette(base);   
             }
             """
         )
@@ -25,7 +26,7 @@ class ChatList(QTextEdit):
         self.img = None  # 图片
         self.rag_query = None  # rag搜索结果
 
-        self.pending_code_block = None  # 未闭合的代码块缓存
+        # self.pending_code_block = None  # 未闭合的代码块缓存
 
         # 聊天状态控制
         self.waiting_for_ai = False  # AI是否正在响应
@@ -34,6 +35,10 @@ class ChatList(QTextEdit):
 
         self.setReadOnly(True)
         self.setAcceptRichText(True)
+
+        # 新增：存储所有消息内容和当前AI响应内容
+        self.all_messages = []  # 存储所有消息 {sender, content}
+        self.current_ai_content = ""  # 当前AI响应累积的内容
 
         self._setup_html_template()
 
@@ -55,7 +60,7 @@ class ChatList(QTextEdit):
                     clear: both;
                 }}
                 .user-message {{
-                    background-color: #E8F0F5;
+                    background-color: #8CAFC3;
                     border-radius: 18px 18px 0 18px;
                     padding: 10px 15px;
                     margin-bottom: 5px;
@@ -67,7 +72,7 @@ class ChatList(QTextEdit):
                     margin-bottom: 5px;
                 }}
                 pre {{
-                    background-color: #E8EDDF;
+                    background-color: #96A587;
                     padding: 10px;
                     border-radius: 5px;
                     overflow-x: auto;
@@ -102,37 +107,79 @@ class ChatList(QTextEdit):
         </body>
         </html>
         """
-        self.messages_html = ""
+        # self.messages_html = ""
 
-    def _add_message(self, sender, content, is_code=False):
+    def _add_message(self, sender, content):
         """添加消息到聊天记录"""
-        if is_code:
-            message_html = f"""
-            <div class="message-container">
-                <div class="{sender}-message">
-                    <pre><code>{content}</code></pre>
-                </div>
-            </div>
-            """
-        else:
-            content = content.replace("\n", "<br>")
-            message_html = f"""
-            <div class="message-container">
-                <div class="{sender}-message">
-                    {content}
-                </div>
-            </div>
-            """
-
-        self.messages_html += message_html
+        self.all_messages.append({"sender": sender, "content": content})
         self._update_chat_display()
 
     def _update_chat_display(self):
         """更新聊天显示区域"""
-        full_html = self.html_template.format(messages=self.messages_html)
+        messages_html = ""
+        for msg in self.all_messages:
+            if msg["sender"] == "ai" and msg["content"].startswith("<markdown>"):
+                # 处理AI的Markdown消息
+                markdown_content = msg["content"][10:]  # 去掉<markdown>标记
+                html_content = self._markdown_to_html(markdown_content)
+                messages_html += f"""
+                <div class="message-container">
+                    <div class="ai-message">
+                        {html_content}
+                    </div>
+                </div>
+                """
+            else:
+                # 普通消息（用户消息或系统消息）
+                content = msg["content"].replace("\n", "<br>")
+                messages_html += f"""
+                <div class="message-container">
+                    <div class="{msg["sender"]}-message">
+                        {content}
+                    </div>
+                </div>
+                """
+
+        # 添加思考中指示器（如果需要）
+        if self.has_typing_indicator:
+            messages_html += """
+            <div class="message-container">
+                <div class="ai-message">
+                    思考中……<span class="typing-indicator">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </span>
+                </div>
+            </div>
+            """
+
+        full_html = self.html_template.format(messages=messages_html)
         self.setHtml(full_html)
         # 滚动到底部
         self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
+
+    def _markdown_to_html(self, text: str) -> str:
+        """将Markdown转为HTML，并处理代码块"""
+        from markdown import markdown
+
+        # 转换Markdown
+        html = markdown(text, extensions=["fenced_code", "tables"])
+
+        # 后处理（添加CSS样式）
+        styled_html = f"""
+        <style>
+            pre {{ 
+                background: #E8EDDF;
+                padding: 10px;
+                border-radius: 5px;
+                overflow-x: auto;
+            }}
+            code {{ font-family: Consolas; }}
+        </style>
+        {html}
+        """
+        return styled_html
 
     def receive_message(self, user_text):
         """处理用户发送消息"""
@@ -156,30 +203,18 @@ class ChatList(QTextEdit):
 
     def _show_typing_indicator(self):
         """显示'思考中……'"""
-        self.messages_html += """
-        <div class="message-container">
-            <div class="ai-message">
-                思考中……<span class="typing-indicator">
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                    <span class="typing-dot"></span>
-                </span>
-            </div>
-        </div>
-        """
-        self._update_chat_display()
         self.has_typing_indicator = True
+        self._update_chat_display()
 
     def _remove_typing_indicator(self):
         """移除'思考中……'"""
-        self.messages_html = self.messages_html[: self.messages_html.rfind("思考中……")]
-        self._update_chat_display()
         self.has_typing_indicator = False
+        self._update_chat_display()
 
     def start_ai_response(self, *user_message):
         """发送给AI"""
         # 清空当前AI响应
-        self.current_ai_response = False
+        self.current_ai_content = ""
         # 发送
         if self.id == 0:  # debug窗口
             Signals.instance().send_message_to_debug_agent(user_message[0])
@@ -199,78 +234,71 @@ class ChatList(QTextEdit):
             self._remove_typing_indicator()
 
         if content == "<EOS>":
-            # 响应完成,允许用户输入
-            self._finalize_pending_code_block()  # 结束前强制闭合未完成的代码块
+            # 响应完成，添加完整的AI消息
+            if self.current_ai_content:
+                self._add_message("ai", f"<markdown>{self.current_ai_content}")
             self._enable_user_input()
 
         else:
-            if self.waiting_for_ai:
-                # 如果是第一个块，先添加AI消息容器
-                if not self.current_ai_response:
-                    self.messages_html += """
-                    <div class="message-container">
-                        <div class="ai-message">
-                    """
-                    self.current_ai_response = True
+            # 累积AI响应内容
+            self.current_ai_content += content
+            # 更新显示（每次都会重新渲染整个AI消息）
+            if self.current_ai_content:
+                # 临时添加当前内容（带<markdown>标记）
+                temp_messages = self.all_messages.copy()
+                temp_messages.append(
+                    {"sender": "ai", "content": f"<markdown>{self.current_ai_content}"}
+                )
+                self._render_temp_messages(temp_messages)
 
-                # 处理代码块标记
-                if "```" in content:
-                    self._handle_code_blocks(content)
-                else:
-                    # 普通文本处理
-                    if self.pending_code_block is not None:
-                        self.pending_code_block += content  # 累积到未闭合的代码块
-                    else:
-                        content = content.replace("\n", "<br>")
-                        self.messages_html += content
-
-                # 更新显示
-                self._update_chat_display()
-
-    def _handle_code_blocks(self, content:str):
-        """处理代码块标记的分割和闭合"""
-        parts = content.split("```")
-        for i, part in enumerate(parts):
-            if i % 2 == 1:
-                # 当前部分是代码块标记（奇数索引）
-                if self.pending_code_block is None:
-                    # 代码块开始
-                    self.pending_code_block = part
-                else:
-                    # 代码块结束
-                    code_content = (
-                        f"<pre><code>{self.pending_code_block}{part}</code></pre>"
-                    )
-                    self.messages_html += code_content
-                    self.pending_code_block = None
+    def _render_temp_messages(self, messages):
+        """临时渲染消息（用于流式更新）"""
+        messages_html = ""
+        for msg in messages:
+            if msg["sender"] == "ai" and msg["content"].startswith("<markdown>"):
+                markdown_content = msg["content"][10:]
+                html_content = self._markdown_to_html(markdown_content)
+                messages_html += f"""
+                <div class="message-container">
+                    <div class="ai-message">
+                        {html_content}
+                    </div>
+                </div>
+                """
             else:
-                # 普通文本
-                if self.pending_code_block is not None:
-                    self.pending_code_block += part  # 累积到代码块内容
-                else:
-                    self.messages_html += part.replace("\n", "<br>")
+                content = msg["content"].replace("\n", "<br>")
+                messages_html += f"""
+                <div class="message-container">
+                    <div class="{msg["sender"]}-message">
+                        {content}
+                    </div>
+                </div>
+                """
 
-    def _finalize_pending_code_block(self):
-        """强制闭合未完成的代码块（避免流式中断导致标记不闭合）"""
-        if self.pending_code_block is not None:
-            self.messages_html += f"<pre><code>{self.pending_code_block}</code></pre>"
-            self.pending_code_block = None
+        if self.has_typing_indicator:
+            messages_html += """
+            <div class="message-container">
+                <div class="ai-message">
+                    思考中……<span class="typing-indicator">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </span>
+                </div>
+            </div>
+            """
+
+        full_html = self.html_template.format(messages=messages_html)
+        self.setHtml(full_html)
+        self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
 
     def _enable_user_input(self):
         """完成AI响应后启用用户输入"""
-        # 关闭AI消息容器
-        self.messages_html += """
-                </div>
-            </div>
-        """
-        self._update_chat_display()
-        print(f"ChatWindow{id}AI响应完成")
         self.waiting_for_ai = False
+        print(f"ChatWindow{self.id} AI响应完成")
 
     def get_ai_response(self, data_list: list, min_delay=0.01, max_delay=0.15):
-        print(f"ChatWindow(id={id})收到ai回复")
-        # print(data_list)
-        # 图片识别不支持流式响应，一次性回复
+        print(f"ChatWindow(id={self.id})收到ai回复")
         data_list.append("<EOS>")  # 保证gui的输出一定能正常结束
         for item in data_list:
             if self.waiting_for_ai:

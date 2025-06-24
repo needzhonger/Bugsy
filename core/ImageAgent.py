@@ -41,7 +41,6 @@ class ImageAgent:
 
     def send_result(self):
         print("ImageAgent向ChatWindow发送结果")
-        self.result.append("<EOS>")
         Signals.instance().send_image_agent_response(self.result)
         self.result.clear()
 

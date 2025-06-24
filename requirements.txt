@@ -29,11 +29,4 @@ pip install python-docx
 pip install pymupdf
 pip install mysql-connector-python
 pip install sentence-transformers
-科学上网，以下语句会自动下载embedding模型:
-
-```python
-from camel.embeddings import SentenceTransformerEncoder
-
-# 保存路径：C:\Users\用户名\.cache\huggingface
-encoder = SentenceTransformerEncoder(model_name='model_name')
-```
+pip install markdown
