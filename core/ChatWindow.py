@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 class ChatList(QTextEdit):
     def __init__(self, id, parent=None):
         super().__init__(parent)
+        self.parent = parent
 
         self.setStyleSheet(
             """

@@ -71,7 +71,7 @@
       <option name="presentableId" value="Default" />
       <updated>1750681540998</updated>
       <workItem from="1750681542183" duration="14198000" />
-      <workItem from="1750771218387" duration="4609000" />
+      <workItem from="1750771218387" duration="6708000" />
     </task>
     <servers />
   </component>
@@ -83,6 +83,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Bugsy$MainWindow.coverage" NAME="MainWindow 覆盖结果" MODIFIED="1750685940619" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core" />
-    <SUITE FILE_PATH="coverage/Bugsy$run_Bugsy.coverage" NAME="run_Bugsy 覆盖结果" MODIFIED="1750775379484" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Bugsy$run_Bugsy.coverage" NAME="run_Bugsy 覆盖结果" MODIFIED="1750777954885" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

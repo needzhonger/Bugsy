@@ -125,7 +125,7 @@ class MainWindow(QMainWindow):
 
         # ========== 顶部栏 ==========
         self.top_bar = QHBoxLayout()
-        self.top_bar.setContentsMargins(10, 10, 0, 0)
+        self.top_bar.setContentsMargins(10, 10, 20, 0)
         self.top_bar.addStretch()
 
         self.api_saver_button = QPushButton("设置API密钥")
@@ -133,8 +133,6 @@ class MainWindow(QMainWindow):
         self.api_saver_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
         self.api_saver_button.clicked.connect(self.show_api_saver_window)
         self.top_bar.addWidget(self.api_saver_button)
-
-        self.main_content_layout.addLayout(self.top_bar)
 
         # ========== 主体内容区域 ==========
         self.main_layout = QHBoxLayout()
@@ -146,8 +144,11 @@ class MainWindow(QMainWindow):
         self.sidebar.setMaximumWidth(230)
         self.main_layout.addWidget(self.sidebar)
 
+        self.wrapper = QVBoxLayout()
         self.main_stack = QStackedWidget()
-        self.main_layout.addWidget(self.main_stack)
+        self.wrapper.addLayout(self.top_bar)
+        self.wrapper.addWidget(self.main_stack)
+        self.main_layout.addLayout(self.wrapper)
 
         # 连接sidebar的信号
         Signals.instance().page_change_signal.connect(
@@ -163,6 +164,7 @@ class MainWindow(QMainWindow):
         self.setup_chatting_window()  # 主界面
         self.have_api_saver_window = False
         self.sidebar_visible = True
+        self.setup_sidebar_animation()
 
     def show_api_saver_window(self):
         if not self.have_api_saver_window:
