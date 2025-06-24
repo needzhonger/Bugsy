@@ -11,6 +11,11 @@ class ImageAgent:
         self.chat_agent = ChatAgent(model=self.model, output_language="中文")
         self.result = []
 
+    def change_model(self, new_model):
+        self.model = new_model
+        self.chat_agent = ChatAgent(model=self.model, output_language="中文")
+        self.result = []
+
     def image_analysis(self, image, question):
         """image是Image解析后的形式"""
         image_msg = BaseMessage(

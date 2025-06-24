@@ -5,17 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e7dc1dfe-c697-45d7-bab2-f667270f13e5" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/core/api_saver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/API_KEY.env" beforeDir="false" afterPath="$PROJECT_DIR$/core/API_KEY.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/Agent_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/Agent_1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/Agent_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/Agent_2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/ChatWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/ChatWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/ImageAgent.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/ImageAgent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/MainWindow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/Model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/SideBar.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/SideBar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/register_and_login/auth.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/register_and_login/ui_login.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/register_and_login/ui_register.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/register_and_login/user_data.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/api_saver.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/api_saver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/common.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/common.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +81,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1750681540998</updated>
-      <workItem from="1750681542183" duration="6458000" />
+      <workItem from="1750681542183" duration="14198000" />
     </task>
     <servers />
   </component>
@@ -95,6 +93,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Bugsy$MainWindow.coverage" NAME="MainWindow 覆盖结果" MODIFIED="1750685940619" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core" />
-    <SUITE FILE_PATH="coverage/Bugsy$run_Bugsy.coverage" NAME="run_Bugsy 覆盖结果" MODIFIED="1750687946469" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Bugsy$run_Bugsy.coverage" NAME="run_Bugsy 覆盖结果" MODIFIED="1750695710002" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -1,4 +1,12 @@
 from core.common import *
+from core.Model import init_models
+
+class ModelLoaderThread(QThread):
+    done = Signal()  # 任务完成时发出信号
+
+    def run(self):
+        init_models()  # 子线程中执行耗时操作
+        self.done.emit()  # 通知主线程
 
 class ApiKeySaver(QDialog):
     def __init__(self, parent=None):
@@ -29,17 +37,26 @@ class ApiKeySaver(QDialog):
             QMessageBox.warning(self, "错误", "请输入有效的 API KEY")
             return
 
-        # 获取脚本文件所在目录的上一级（即 core 目录）
-        current_script_dir = os.path.dirname(os.path.abspath(__file__))
-        core_dir = os.path.abspath(os.path.join(current_script_dir, ".."))
-        file_path = os.path.join(core_dir, "API_KEY.env")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        env_path = os.path.join(script_dir, "API_KEY.env")
 
         try:
-            with open(file_path, "w", encoding="utf-8") as f:
+            with open(env_path, "w", encoding="utf-8") as f:
                 f.write(f"API_KEY={api_key}\n")
-            QMessageBox.information(self, "成功", f"API密钥已保存至:\n{file_path}")
+            self.parent.loading_label.setVisible(True)
+            self.parent.main_content_widget.setVisible(False)
+            # 启动子线程加载模型
+            self.loader_thread = ModelLoaderThread()
+            self.loader_thread.done.connect(self.after_model_loaded)
+            self.loader_thread.start()
+
+            QMessageBox.information(self, "成功", f"API密钥已保存至:\n{env_path}")
         except Exception as e:
             QMessageBox.critical(self, "错误", f"保存失败: {e}")
+
+    def after_model_loaded(self):
+        self.close()  # 安全地关闭窗口
+        self.parent.refresh()  # 通知父组件刷新
 
     def closeEvent(self, event: QCloseEvent):
         self.parent.have_api_saver_window = False

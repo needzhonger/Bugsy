@@ -3,32 +3,39 @@ from camel.types import ModelPlatformType
 from dotenv import load_dotenv
 import os
 
-# 加载 API Key
-# 获取当前脚本文件所在目录（也就是 core/）
+# 获取当前脚本目录（core/）
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
-# 拼接出 API_KEY.env 的绝对路径
 env_path = os.path.join(script_dir, "API_KEY.env")
 
-# 加载 .env 文件
-load_dotenv(dotenv_path=env_path)
-API_KEY = os.getenv("API_KEY")
-print(f"API_KEY:{API_KEY}")
+# 初始化全局模型变量
+model = None
+vision_model = None
 
-# 处理文本的模型
-model = ModelFactory.create(
-    model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
-    model_type="Pro/deepseek-ai/DeepSeek-R1",
-    url="https://api.siliconflow.cn",
-    api_key=API_KEY,
-    model_config_dict={"temperature": 0.5, "max_tokens": 10000, "stream": True},
-)
+def load_api_key():
+    load_dotenv(dotenv_path=env_path, override=True)
+    return os.getenv("API_KEY")
 
-# 处理图片的模型
-vision_model = ModelFactory.create(
-    model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
-    model_type="Qwen/Qwen2.5-VL-72B-Instruct",
-    url="https://api.siliconflow.cn",
-    api_key=API_KEY,
-    model_config_dict={"stream": True},
-)
+def init_models():
+    global model, vision_model
+
+    api_key = load_api_key()
+    print(f"当前API_KEY: {api_key}")
+
+    model = ModelFactory.create(
+        model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
+        model_type="Pro/deepseek-ai/DeepSeek-R1",
+        url="https://api.siliconflow.cn",
+        api_key=api_key,
+        model_config_dict={"temperature": 0.5, "max_tokens": 10000, "stream": True},
+    )
+
+    vision_model = ModelFactory.create(
+        model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
+        model_type="Qwen/Qwen2.5-VL-72B-Instruct",
+        url="https://api.siliconflow.cn",
+        api_key=api_key,
+        model_config_dict={"stream": True},
+    )
+
+# 启动时初始化一次
+init_models()
