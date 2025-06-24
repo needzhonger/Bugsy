@@ -2,11 +2,11 @@ from core.common import *
 from core.Model import init_models
 
 class ModelLoaderThread(QThread):
-    done = Signal()  # 任务完成时发出信号
+    done = Signal(object, object)  # 任务完成时发出信号
 
     def run(self):
-        init_models()  # 子线程中执行耗时操作
-        self.done.emit()  # 通知主线程
+        new_model, new_image_model = init_models()  # 子线程中执行耗时操作
+        self.done.emit(new_model, new_image_model)  # 通知主线程
 
 class ApiKeySaver(QDialog):
     def __init__(self, parent=None):
@@ -54,9 +54,9 @@ class ApiKeySaver(QDialog):
         except Exception as e:
             QMessageBox.critical(self, "错误", f"保存失败: {e}")
 
-    def after_model_loaded(self):
+    def after_model_loaded(self, new_model, new_image_model):
         self.close()  # 安全地关闭窗口
-        self.parent.refresh()  # 通知父组件刷新
+        self.parent.refresh(new_model, new_image_model)  # 通知父组件刷新
 
     def closeEvent(self, event: QCloseEvent):
         self.parent.have_api_saver_window = False

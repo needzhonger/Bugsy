@@ -70,10 +70,6 @@ class MyChatAgent(ChatAgent):
         self._model = model
         self.result = []  # 记录流式响应结果
 
-    def change_model(self, new_model):
-        self._model = new_model
-        self.result = []  # 记录流式响应结果
-
     def stream_response(self, prompt, id: int):
         self.worker = StreamWorker(self._model, prompt, id)
         self.worker.message_received.connect(self.send_message)

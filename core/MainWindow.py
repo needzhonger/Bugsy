@@ -62,9 +62,44 @@ class MainWindow(QMainWindow):
         self.agent_loader.agents_ready.connect(self.on_agents_ready)
         self.agent_loader.start()
 
-    def refresh(self):
-        self.chat_agent.change_model(model)
-        self.image_agent.change_model(vision_model)
+    def refresh(self, _model, _vision_model):
+        self.chat_agent = MyChatAgent(_model)
+        self.image_agent = ImageAgent(_vision_model)
+        # 断开已有信号连接
+        try:
+            Signals.instance().to_chat_agent_signal.disconnect()
+        except TypeError:
+            pass  # 没有连接可断时会抛出 TypeError，忽略即可
+
+        try:
+            Signals.instance().to_debug_agent_signal.disconnect()
+        except TypeError:
+            pass
+
+        try:
+            Signals.instance().to_image_agent_signal.disconnect()
+        except TypeError:
+            pass
+
+        try:
+            Signals.instance().to_rag_agent_signal.disconnect()
+        except TypeError:
+            pass
+        # 注册信号连接
+        Signals.instance().to_chat_agent_signal.connect(
+            lambda x: self.chat_agent.receive_message(x, 1)
+        )
+        Signals.instance().to_debug_agent_signal.connect(
+            lambda x: self.chat_agent.receive_message(x, 0)
+        )
+        Signals.instance().to_image_agent_signal.connect(
+            lambda img, question, is_path: self.image_agent.receive_message(
+                img, question, is_path
+            )
+        )
+        Signals.instance().to_rag_agent_signal.connect(
+            lambda x: self.chat_agent.receive_message(x, 3)
+        )
         self.loading_label.setVisible(False)
         self.main_content_widget.setVisible(True)
 

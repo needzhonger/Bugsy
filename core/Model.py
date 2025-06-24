@@ -16,12 +16,10 @@ def load_api_key():
     return os.getenv("API_KEY")
 
 def init_models():
-    global model, vision_model
-
     api_key = load_api_key()
-    print(f"当前API_KEY: {api_key}")
+    print(f"设置API_KEY为: {api_key}")
 
-    model = ModelFactory.create(
+    _model = ModelFactory.create(
         model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
         model_type="Pro/deepseek-ai/DeepSeek-R1",
         url="https://api.siliconflow.cn",
@@ -29,13 +27,14 @@ def init_models():
         model_config_dict={"temperature": 0.5, "max_tokens": 10000, "stream": True},
     )
 
-    vision_model = ModelFactory.create(
+    _vision_model = ModelFactory.create(
         model_platform=ModelPlatformType.OPENAI_COMPATIBLE_MODEL,
         model_type="Qwen/Qwen2.5-VL-72B-Instruct",
         url="https://api.siliconflow.cn",
         api_key=api_key,
         model_config_dict={"stream": True},
     )
+    return _model, _vision_model
 
 # 启动时初始化一次
-init_models()
+model, vision_model = init_models()
