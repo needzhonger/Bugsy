@@ -51,11 +51,18 @@ class MainWindow(QMainWindow):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
-        # 原来的 main_layout 改为放入 outer_layout
-        self.outer_layout = QVBoxLayout()
-        self.outer_layout.setContentsMargins(0, 0, 0, 0)
-        self.outer_layout.setSpacing(0)
-        self.central_widget.setLayout(self.outer_layout)
+        # # 原来的 main_layout 改为放入 outer_layout
+        # self.outer_layout = QVBoxLayout()
+        # self.outer_layout.setContentsMargins(0, 0, 0, 0)
+        # self.outer_layout.setSpacing(0)
+        self.central_widget.setLayout(self.main_layout)
+
+        # 侧边栏
+        self.sidebar = SideBar(self)
+        self.sidebar.setMaximumWidth(230)  # 设置初始宽度为230
+        self.main_layout.addWidget(self.sidebar)
+        self.sidebar_visible = True  # 初始化侧边栏状态
+        self.setup_sidebar_animation()
 
         # 顶部栏布局
         self.top_bar = QHBoxLayout()
@@ -74,20 +81,18 @@ class MainWindow(QMainWindow):
 
         self.top_bar.addWidget(self.api_saver_button)
 
-        # 添加顶部栏和主区域布局
-        self.outer_layout.addLayout(self.top_bar)
-        self.outer_layout.addLayout(self.main_layout)
+        # 容纳api_key按钮、各个窗口
+        right_layout=QVBoxLayout()
+        self.main_layout.addLayout(right_layout)
+        right_layout.addLayout(self.top_bar)
 
-        # 侧边栏
-        self.sidebar = SideBar(self)
-        self.sidebar.setMaximumWidth(230)  # 设置初始宽度为230
-        self.main_layout.addWidget(self.sidebar)
-        self.sidebar_visible = True  # 初始化侧边栏状态
-        self.setup_sidebar_animation()
+        # # 添加顶部栏和主区域布局
+        # self.outer_layout.addLayout(self.top_bar)
+        # self.outer_layout.addLayout(self.main_layout)
 
         # 主窗口（设计为堆叠窗口，有多个界面）
         self.main_stack = QStackedWidget()
-        self.main_layout.addWidget(self.main_stack)
+        right_layout.addWidget(self.main_stack)
 
         # 连接sidebar的信号
         Signals.instance().page_change_signal.connect(
