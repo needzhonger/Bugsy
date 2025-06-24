@@ -32,11 +32,10 @@ class ImageAgent:
 
         self.send_result()
 
-    def receive_message(self, img, question, img_is_path=False):
+    def receive_message(self, img, question):
         """从前端接收信息"""
-        print(f"ImageAgent开始处理:图片:{img.size};问题:{question}")
-        if img_is_path:
-            image = Image.open(img)
+        image = Image.open(img)
+        print(f"ImageAgent开始处理:图片尺寸:{image.size};问题:{question}")
         self.image_analysis(image, question)
 
     def send_result(self):

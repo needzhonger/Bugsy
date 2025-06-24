@@ -23,7 +23,7 @@ class ChatList(QTextEdit):
         )
 
         self.id = id
-        self.img = None  # 图片
+        self.img_path = None  # 图片
         self.rag_query = None  # rag搜索结果
 
         # self.pending_code_block = None  # 未闭合的代码块缓存
@@ -211,23 +211,21 @@ class ChatList(QTextEdit):
         self.has_typing_indicator = False
         self._update_chat_display()
 
-    def start_ai_response(self, *user_message):
+    def start_ai_response(self, user_message):
         """发送给AI"""
         # 清空当前AI响应
         self.current_ai_content = ""
         # 发送
         if self.id == 0:  # debug窗口
-            Signals.instance().send_message_to_debug_agent(user_message[0])
+            Signals.instance().send_message_to_debug_agent(user_message)
         elif self.id == 1:  # 文字处理窗口
-            Signals.instance().send_message_to_ai(user_message[0])
+            Signals.instance().send_message_to_ai(user_message)
         elif self.id == 2:  # 图片处理窗口:图片、问题、是否是路径
-            Signals.instance().send_message_to_image_agent(
-                user_message[0], user_message[1], user_message[2]
-            )
+            Signals.instance().send_message_to_image_agent(self.img_path, user_message)
         else:  # rag窗口
-            Signals.instance().send_message_to_rag_agent(user_message[0])
+            Signals.instance().send_message_to_rag_agent(user_message)
 
-    def update_ai_response(self, content:str):
+    def update_ai_response(self, content: str):
         """接收AI回答"""
         # 移除"思考中……"指示器
         if self.has_typing_indicator:

@@ -15,7 +15,7 @@ class Signals(QObject):
     chat_agent_response_signal = Signal(list)  # AI回复的信号
     to_debug_agent_signal = Signal(str)
     debug_agent_response_signal = Signal(list)
-    to_image_agent_signal = Signal(Image.Image, str, bool)
+    to_image_agent_signal = Signal(str, str)
     image_agent_response_signal = Signal(list)
     to_rag_agent_signal = Signal(str)
     rag_agent_response_signal = Signal(list)
@@ -53,8 +53,8 @@ class Signals(QObject):
     def send_debug_agent_response(self, content):
         self.debug_agent_response_signal.emit(content)
 
-    def send_message_to_image_agent(self, img, question, is_path=True):
-        self.to_image_agent_signal.emit(img, question, is_path)
+    def send_message_to_image_agent(self, img_path, question):
+        self.to_image_agent_signal.emit(img_path, question)
 
     def send_image_agent_response(self, content):
         self.image_agent_response_signal.emit(content)

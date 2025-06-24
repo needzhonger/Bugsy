@@ -72,7 +72,9 @@ class MainWindow(QMainWindow):
         self.top_bar.addStretch()
 
         # 更改api按钮
-        self.have_api_saver_window = False  # 标记是否已经存在登录窗口，避免重复加载登录窗口
+        self.have_api_saver_window = (
+            False  # 标记是否已经存在登录窗口，避免重复加载登录窗口
+        )
         self.api_saver_window = None
         self.api_saver_button = QPushButton("设置API密钥")
         self.api_saver_button.setFixedHeight(28)
@@ -82,7 +84,7 @@ class MainWindow(QMainWindow):
         self.top_bar.addWidget(self.api_saver_button)
 
         # 容纳api_key按钮、各个窗口
-        right_layout=QVBoxLayout()
+        right_layout = QVBoxLayout()
         self.main_layout.addLayout(right_layout)
         right_layout.addLayout(self.top_bar)
 
@@ -117,8 +119,8 @@ class MainWindow(QMainWindow):
             lambda x: self.chat_agent.receive_message(x, 0)
         )
         Signals.instance().to_image_agent_signal.connect(
-            lambda img, question, is_path: self.image_agent.receive_message(
-                img, question, is_path
+            lambda img, question: self.image_agent.receive_message(
+                img, question
             )
         )
         Signals.instance().to_rag_agent_signal.connect(
@@ -439,7 +441,14 @@ class MainWindow(QMainWindow):
 						}
 						"""
         )
-        send_btn.clicked.connect(partial(self.send_message, input_box, chat_list))
+        send_btn.clicked.connect(
+            partial(
+                self.send_message,
+                input_box,
+                chat_list,
+                img_path=self.img_path_edit.text(),
+            )
+        )
         bottom_layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
         layout.addLayout(bottom_layout)
         return chat_widget, input_box, chat_list
@@ -626,9 +635,11 @@ class MainWindow(QMainWindow):
 
         self.animations["sidebar"].start()
 
-    def send_message(self, input_box, chat_list):
+    def send_message(self, input_box, chat_list: ChatList, img_path=None):
         # print("in send_message!")
         text = input_box.toPlainText().strip()
         if text:
             input_box.clear()
             chat_list.receive_message(text)
+        if not img_path is None:
+            chat_list.img_path = img_path
