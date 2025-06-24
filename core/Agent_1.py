@@ -80,7 +80,6 @@ class MyChatAgent(ChatAgent):
         self.worker.finished.connect(self.send_result)
         self.worker.start()
 
-
     def receive_message(self, message, id: int):
         """接收消息并触发流式响应"""
         print(f"Agent_1开始处理:{message};来自页面{id}")
