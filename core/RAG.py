@@ -25,12 +25,9 @@ class RAGStorage:
         :param similarity_threshold: 检索时的相似度阈值
         :param top_k: 给出前top_k个相关的结果
         """
-        print("Start to prepare RAG")
 
         # embedding模型
         self.encoder = SentenceTransformerEncoder(model_name="core\embedding_model")
-
-        print("RAGStorage.encoder is ready")
 
         self.similarity_threshold = similarity_threshold
         self.top_k = top_k
@@ -43,12 +40,8 @@ class RAGStorage:
             path=path,
         )
 
-        print("RAGStorage.vector_storage is ready")
-
         # Initialize the VectorRetriever with an embedding model
         self.vr = VectorRetriever(self.encoder, self.vector_storage)
-
-        print("RAG is ready")
 
     def process_file(self, content_input_path):
         """读取文件内容，支持txt,pdf,docx，仅支持文本"""

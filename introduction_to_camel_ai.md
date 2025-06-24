@@ -4,30 +4,13 @@
 
 pip install camel-ai
 
-#### 图像处理（需配合多模态模型）
-
-pip install pillow opencv-python ？
-
-#### 向量数据库(用于知识库检索增强(RAG))
-
-pip install chromadb sentence-transformers ？
-
 #### 管理密钥的库
 
 pip install python-dotenv
 
-#### 处理数据的库
-
-pip install sqlalchemy ？
-
 #### pandas
 
 pip install pandas
-
-#### 用于html
-
-pip install tinycss2 ？
-pip install markdown pygments bleach beautifulsoup4 ？
 
 #### 用于RAG的
 
@@ -38,15 +21,6 @@ pip install python-magic
 pip install python-magic-bin  # Windows 专用二进制依赖
 pip install python-docx
 pip install pymupdf
-
-科学上网，以下语句会自动下载embedding模型:
-
-```python
-from camel.embeddings import SentenceTransformerEncoder
-
-# 保存路径：C:\Users\用户名\.cache\huggingface
-encoder = SentenceTransformerEncoder(model_name='model_name')
-```
 
 # 搭建智能体
 

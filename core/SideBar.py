@@ -9,12 +9,6 @@ class SideBar(QFrame):
         super().__init__(parent)
         self.setFrameShape(QFrame.StyledPanel)
 
-        # self.setStyleSheet(
-        #     """QFrame{
-        #                    background-color:#D1D9E0
-        #                    }"""
-        # )
-
         # ===侧边栏内容===
         layout = QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 20)

@@ -41,13 +41,13 @@ class MainWindow(QMainWindow):
             screen_geometry.height() // 2 - height // 2,
         )
 
-        # self.setStyleSheet(
-        #     """
-        #     QMainWindow {
-        #         background-color: #F5F5F0;
-        #     }
-        # """
-        # )
+        self.setStyleSheet(
+            """
+            QMainWindow {
+                background-color: palette(window);  
+            }
+        """
+        )
 
         # 设置空变量等待赋值
         self.chat_agent = None
@@ -97,10 +97,8 @@ class MainWindow(QMainWindow):
 
     def setup_ui_structure(self):
 
-        # 动画管理集
-        self.animations: dict[str, QPropertyAnimation] = {}
+        self.animations = {}
 
-        # 主窗口中心部件（容纳 main_layout）
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
@@ -144,14 +142,10 @@ class MainWindow(QMainWindow):
         self.main_layout.setSpacing(0)
         self.main_content_layout.addLayout(self.main_layout)
 
-        # 侧边栏
         self.sidebar = SideBar(self)
-        self.sidebar.setMaximumWidth(230)  # 设置初始宽度为230
+        self.sidebar.setMaximumWidth(230)
         self.main_layout.addWidget(self.sidebar)
-        self.sidebar_visible = True  # 初始化侧边栏状态
-        self.setup_sidebar_animation()
 
-        # 主窗口（设计为堆叠窗口，有多个界面）
         self.main_stack = QStackedWidget()
         self.main_layout.addWidget(self.main_stack)
 
@@ -168,6 +162,7 @@ class MainWindow(QMainWindow):
         self.chat_lists = {}  # 页面名 -> ChatList
         self.setup_chatting_window()  # 主界面
         self.have_api_saver_window = False
+        self.sidebar_visible = True
 
     def show_api_saver_window(self):
         if not self.have_api_saver_window:

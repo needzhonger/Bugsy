@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7dc1dfe-c697-45d7-bab2-f667270f13e5" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/Agent_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/Agent_1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/Agent_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/Agent_2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/ChatWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/ChatWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/ImageAgent.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/ImageAgent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/Model.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/Model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/api_saver.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/api_saver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/common.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/common.py" afterDir="false" />
-    </list>
+    <list default="true" id="e7dc1dfe-c697-45d7-bab2-f667270f13e5" name="更改" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,22 +13,22 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "needzhonger"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;needzhonger&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/needzhonger/Bugsy.git",
-    "accountId": "f1f50924-9ab6-4977-b0d2-eab4ab59447d"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/needzhonger/Bugsy.git&quot;,
+    &quot;accountId&quot;: &quot;f1f50924-9ab6-4977-b0d2-eab4ab59447d&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 3
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2yuPZV8Xhu7axwMQj3oRHGPvsPT" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -51,7 +41,6 @@
     "Python.run_Bugsy.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "wip",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -82,6 +71,7 @@
       <option name="presentableId" value="Default" />
       <updated>1750681540998</updated>
       <workItem from="1750681542183" duration="14198000" />
+      <workItem from="1750771218387" duration="3566000" />
     </task>
     <servers />
   </component>
@@ -93,6 +83,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Bugsy$MainWindow.coverage" NAME="MainWindow 覆盖结果" MODIFIED="1750685940619" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core" />
-    <SUITE FILE_PATH="coverage/Bugsy$run_Bugsy.coverage" NAME="run_Bugsy 覆盖结果" MODIFIED="1750695710002" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Bugsy$run_Bugsy.coverage" NAME="run_Bugsy 覆盖结果" MODIFIED="1750774691676" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
