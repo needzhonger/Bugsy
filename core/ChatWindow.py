@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 class ChatList(QTextEdit):
     def __init__(self, id, parent=None):
         super().__init__(parent)
+        self.parent = parent
 
         self.setStyleSheet(
             """
@@ -307,3 +308,7 @@ class ChatList(QTextEdit):
                 time.sleep(random.uniform(min_delay, max_delay))
             else:
                 break
+
+    def show_API_error(self):
+        #TODO 在API错误时在聊天框中显示“API错误”的提醒
+        pass

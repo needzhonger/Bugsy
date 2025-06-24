@@ -2,6 +2,37 @@ from .common import *
 from PIL import Image
 from .Signals import Signals
 
+class ImageWorker(QThread):
+    result_ready = Signal(list)
+
+    def __init__(self, model, image, question):
+        super().__init__()
+        self.model = model
+        self.image = image
+        self.question = question
+
+    def run(self):
+        chat_agent = ChatAgent(model=self.model, output_language="中文")
+        result = []
+
+        image_msg = BaseMessage(
+            role_name="assistant",
+            content=self.question,
+            image_list=[self.image],
+            meta_dict={},
+            role_type=RoleType.ASSISTANT,
+        )
+
+        response = chat_agent.step(image_msg)
+
+        if response and response.msgs:
+            result.append(response.msgs[0].content)
+        else:
+            result.append("未能获取到有效的回复。")
+            if response and response.info:
+                result.append(response.info)
+
+        self.result_ready.emit(result)
 
 class ImageAgent:
     """图像识别"""
@@ -11,26 +42,16 @@ class ImageAgent:
         self.chat_agent = ChatAgent(model=self.model, output_language="中文")
         self.result = []
 
+    def change_model(self, new_model):
+        self.model = new_model
+        self.chat_agent = ChatAgent(model=self.model, output_language="中文")
+        self.result = []
+
     def image_analysis(self, image, question):
         """image是Image解析后的形式"""
-        image_msg = BaseMessage(
-            role_name="assistant",
-            content=question,
-            image_list=[image],  # 图片
-            meta_dict={},
-            role_type=RoleType.ASSISTANT,
-        )
-
-        response = self.chat_agent.step(image_msg)
-
-        if response and response.msgs:
-            self.result.append(response.msgs[0].content)
-        else:
-            self.result.append("未能获取到有效的回复。")
-            if response and response.info:
-                self.result.append(response.info)
-
-        self.send_result()
+        self.worker = ImageWorker(self.model, image, question)
+        self.worker.result_ready.connect(self.send_result)
+        self.worker.start()
 
     def receive_message(self, img, question):
         """从前端接收信息"""

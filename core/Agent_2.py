@@ -25,6 +25,9 @@ class AIAgent:
     def __init__(self, model):
         self.model = model
 
+    def change_model(self, new_model):
+        self._model = new_model
+
     def communication(
         self,
         task_prompt,

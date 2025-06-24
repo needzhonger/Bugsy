@@ -19,7 +19,6 @@ def show_pet():
     应用程序的主入口点。
     负责加载数据、创建应用实例、设置样式并运行主窗口。
     """
-    # 1. 加载宠物数据
     try:
         pets_data = read_json('Pet/data/pets.json')
         print("宠物数据加载成功。")

@@ -14,6 +14,16 @@ from tkinter import filedialog
 
 log = logging.getLogger(__name__)
 
+class AgentInitializer(QThread):
+    agents_ready = Signal(object, object, object)  # chat_agent, image_agent
+
+    def run(self):
+        # 在子线程中执行耗时初始化
+        chat_agent = MyChatAgent(model=model)
+        image_agent = ImageAgent(vision_model)
+        rag_storage = RAGStorage(similarity_threshold=0.6, top_k=1)
+        self.agents_ready.emit(chat_agent, image_agent, rag_storage)
+
 
 class MainWindow(QMainWindow):
 
@@ -39,79 +49,43 @@ class MainWindow(QMainWindow):
         """
         )
 
-        # 动画管理集
-        self.animations: dict[str, QPropertyAnimation] = {}
+        # 设置空变量等待赋值
+        self.chat_agent = None
+        self.image_agent = None
+        self.rag_storage = None
 
-        # 主窗口中心部件（容纳 main_layout）
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
+        # 初始化界面结构
+        self.setup_ui_structure()
 
-        # 主布局 main_layout（容纳侧边栏和主窗口）
-        self.main_layout = QHBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(0)
+        # 启动异步 agent 加载线程
+        self.agent_loader = AgentInitializer()
+        self.agent_loader.agents_ready.connect(self.on_agents_ready)
+        self.agent_loader.start()
 
-        # # 原来的 main_layout 改为放入 outer_layout
-        # self.outer_layout = QVBoxLayout()
-        # self.outer_layout.setContentsMargins(0, 0, 0, 0)
-        # self.outer_layout.setSpacing(0)
-        self.central_widget.setLayout(self.main_layout)
+    def refresh(self, _model, _vision_model):
+        self.chat_agent = MyChatAgent(_model)
+        self.image_agent = ImageAgent(_vision_model)
+        # 断开已有信号连接
+        try:
+            Signals.instance().to_chat_agent_signal.disconnect()
+        except TypeError:
+            pass  # 没有连接可断时会抛出 TypeError，忽略即可
 
-        # 侧边栏
-        self.sidebar = SideBar(self)
-        self.sidebar.setMaximumWidth(230)  # 设置初始宽度为230
-        self.main_layout.addWidget(self.sidebar)
-        self.sidebar_visible = True  # 初始化侧边栏状态
-        self.setup_sidebar_animation()
+        try:
+            Signals.instance().to_debug_agent_signal.disconnect()
+        except TypeError:
+            pass
 
-        # 顶部栏布局
-        self.top_bar = QHBoxLayout()
-        self.top_bar.setContentsMargins(10, 10, 10, 0)
+        try:
+            Signals.instance().to_image_agent_signal.disconnect()
+        except TypeError:
+            pass
 
-        # 添加弹性空间，使按钮靠右
-        self.top_bar.addStretch()
-
-        # 更改api按钮
-        self.have_api_saver_window = (
-            False  # 标记是否已经存在登录窗口，避免重复加载登录窗口
-        )
-        self.api_saver_window = None
-        self.api_saver_button = QPushButton("设置API密钥")
-        self.api_saver_button.setFixedHeight(28)
-        self.api_saver_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
-        self.api_saver_button.clicked.connect(self.show_api_saver_window)
-
-        self.top_bar.addWidget(self.api_saver_button)
-
-        # 容纳api_key按钮、各个窗口
-        right_layout = QVBoxLayout()
-        self.main_layout.addLayout(right_layout)
-        right_layout.addLayout(self.top_bar)
-
-        # # 添加顶部栏和主区域布局
-        # self.outer_layout.addLayout(self.top_bar)
-        # self.outer_layout.addLayout(self.main_layout)
-
-        # 主窗口（设计为堆叠窗口，有多个界面）
-        self.main_stack = QStackedWidget()
-        right_layout.addWidget(self.main_stack)
-
-        # 连接sidebar的信号
-        Signals.instance().page_change_signal.connect(
-            partial(self.navigate_to, stack=self.main_stack)
-        )
-
-        # 通过名称记录页面，使用字典映射
-        self.main_stack_map = {}  # 名称→索引
-
-        # 设置 main_stack各页面的内容，注意初始化顺序
-        self.chat_inputs = {}  # 页面名 -> QTextEdit
-        self.chat_lists = {}  # 页面名 -> ChatList
-        self.setup_chatting_window()  # 主界面
-
-        # 设置AI
-        self.chat_agent = MyChatAgent(model=model)
-        self.image_agent = ImageAgent(vision_model)
+        try:
+            Signals.instance().to_rag_agent_signal.disconnect()
+        except TypeError:
+            pass
+        # 注册信号连接
         Signals.instance().to_chat_agent_signal.connect(
             lambda x: self.chat_agent.receive_message(x, 1)
         )
@@ -126,7 +100,106 @@ class MainWindow(QMainWindow):
         Signals.instance().to_rag_agent_signal.connect(
             lambda x: self.chat_agent.receive_message(x, 3)
         )
-        rag_storage = RAGStorage(similarity_threshold=0.6, top_k=1)
+        self.loading_label.setVisible(False)
+        self.main_content_widget.setVisible(True)
+
+    def on_agents_ready(self, chat_agent, image_agent, rag_storage):
+        self.chat_agent = chat_agent
+        self.image_agent = image_agent
+        self.rag_storage = rag_storage
+
+        # 注册信号连接
+        Signals.instance().to_chat_agent_signal.connect(
+            lambda x: self.chat_agent.receive_message(x, 1)
+        )
+        Signals.instance().to_debug_agent_signal.connect(
+            lambda x: self.chat_agent.receive_message(x, 0)
+        )
+        Signals.instance().to_image_agent_signal.connect(
+            lambda img, question, is_path: self.image_agent.receive_message(
+                img, question, is_path
+            )
+        )
+        Signals.instance().to_rag_agent_signal.connect(
+            lambda x: self.chat_agent.receive_message(x, 3)
+        )
+
+        # ==== 加载完成：切换 UI ====
+        self.loading_label.setVisible(False)
+        self.main_content_widget.setVisible(True)
+
+        print("AI agents 初始化完成")
+
+    def setup_ui_structure(self):
+
+        self.animations = {}
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+
+        self.outer_layout = QVBoxLayout()
+        self.outer_layout.setContentsMargins(0, 0, 0, 0)
+        self.outer_layout.setSpacing(0)
+        self.central_widget.setLayout(self.outer_layout)
+
+        # ===== 加载提示页面 =====
+        self.loading_label = QLabel("正在加载 AI 模型，请稍候...")
+        self.loading_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.loading_label.setStyleSheet("font-size: 18px; padding: 20px;")
+        self.outer_layout.addWidget(self.loading_label)
+
+        # ===== 主内容区域（顶栏 + 主体） =====
+        self.main_content_widget = QWidget()
+        self.main_content_widget.setVisible(False)
+        self.outer_layout.addWidget(self.main_content_widget)
+
+        self.main_content_layout = QVBoxLayout()
+        self.main_content_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_content_layout.setSpacing(0)
+        self.main_content_widget.setLayout(self.main_content_layout)
+
+        # ========== 顶部栏 ==========
+        self.top_bar = QHBoxLayout()
+        self.top_bar.setContentsMargins(10, 10, 20, 0)
+        self.top_bar.addStretch()
+
+        self.api_saver_button = QPushButton("设置API密钥")
+        self.api_saver_button.setFixedHeight(28)
+        self.api_saver_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
+        self.api_saver_button.clicked.connect(self.show_api_saver_window)
+        self.top_bar.addWidget(self.api_saver_button)
+
+        # ========== 主体内容区域 ==========
+        self.main_layout = QHBoxLayout()
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
+        self.main_content_layout.addLayout(self.main_layout)
+
+        self.sidebar = SideBar(self)
+        self.sidebar.setMaximumWidth(230)
+        self.main_layout.addWidget(self.sidebar)
+
+        self.wrapper = QVBoxLayout()
+        self.main_stack = QStackedWidget()
+        self.wrapper.addLayout(self.top_bar)
+        self.wrapper.addWidget(self.main_stack)
+        self.main_layout.addLayout(self.wrapper)
+
+        # 连接sidebar的信号
+        Signals.instance().page_change_signal.connect(
+            partial(self.navigate_to, stack=self.main_stack)
+        )
+
+        # 通过名称记录页面，使用字典映射
+        self.main_stack_map = {}  # 名称→索引
+
+        # 设置 main_stack各页面的内容，注意初始化顺序
+        self.chat_inputs = {}  # 页面名 -> QTextEdit
+        self.chat_lists = {}  # 页面名 -> ChatList
+        self.setup_chatting_window()  # 主界面
+        self.have_api_saver_window = False
+        self.sidebar_visible = True
+        self.setup_sidebar_animation()
 
     def show_api_saver_window(self):
         if not self.have_api_saver_window:
@@ -141,8 +214,6 @@ class MainWindow(QMainWindow):
         # 2. 置顶显示
         self.api_saver_window.raise_()  # 提升到其他窗口上方
         self.api_saver_window.activateWindow()  # 激活为当前活动窗口
-
-        # QMessageBox.information(self, "登录", "登录窗口弹出（未实现）")
 
     def create_debug_window(self):
         chat_widget = QWidget()
@@ -640,6 +711,10 @@ class MainWindow(QMainWindow):
         text = input_box.toPlainText().strip()
         if text:
             input_box.clear()
-            chat_list.receive_message(text)
+            try :
+                chat_list.receive_message(text)
+            except :
+                chat_list.show_API_error()
+                return
         if not img_path is None:
             chat_list.img_path = img_path
