@@ -7,8 +7,7 @@ from .Agent_1 import MyChatAgent
 from .ImageAgent import ImageAgent
 from .Model import model, vision_model
 from functools import partial
-from .register_and_login.ui_login import LoginWindow
-from .register_and_login.ui_register import RegisterWindow
+from core.api_saver import ApiKeySaver
 from .RAG import RAGStorage
 import tkinter as tk
 from tkinter import filedialog
@@ -65,26 +64,15 @@ class MainWindow(QMainWindow):
         # 添加弹性空间，使按钮靠右
         self.top_bar.addStretch()
 
-        # 登录按钮
-        self.have_login_window = False  # 标记是否已经存在登录窗口，避免重复加载登录窗口
-        self.login_window = None
-        self.login_button = QPushButton("登录")
-        self.login_button.setFixedHeight(28)
-        self.login_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
-        self.login_button.clicked.connect(self.show_login_window)
+        # 更改api按钮
+        self.have_api_saver_window = False  # 标记是否已经存在登录窗口，避免重复加载登录窗口
+        self.api_saver_window = None
+        self.api_saver_button = QPushButton("设置API密钥")
+        self.api_saver_button.setFixedHeight(28)
+        self.api_saver_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
+        self.api_saver_button.clicked.connect(self.show_api_saver_window)
 
-        # 注册按钮
-        self.have_register_window = (
-            False  # 标记是否已经存在注册窗口，避免重复加载注册窗口
-        )
-        self.login_window = None
-        self.register_button = QPushButton("注册")
-        self.register_button.setFixedHeight(28)
-        self.register_button.setStyleSheet("QPushButton { padding: 4px 12px; }")
-        self.register_button.clicked.connect(self.show_register_window)
-
-        self.top_bar.addWidget(self.login_button)
-        self.top_bar.addWidget(self.register_button)
+        self.top_bar.addWidget(self.api_saver_button)
 
         # 添加顶部栏和主区域布局
         self.outer_layout.addLayout(self.top_bar)
@@ -133,37 +121,21 @@ class MainWindow(QMainWindow):
         )
         rag_storage = RAGStorage(similarity_threshold=0.6, top_k=1)
 
-    def show_login_window(self):
-        if not self.have_login_window:
-            self.login_window = LoginWindow(self)
-            self.login_window.show()
-            self.have_login_window = True
+    def show_api_saver_window(self):
+        if not self.have_api_saver_window:
+            self.api_saver_window = ApiKeySaver(self)
+            self.api_saver_window.show()
+            self.have_api_saver_window = True
         # 1. 取消最小化（恢复正常大小）
-        self.login_window.setWindowState(
-            self.login_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive
+        self.api_saver_window.setWindowState(
+            self.api_saver_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive
         )
 
         # 2. 置顶显示
-        self.login_window.raise_()  # 提升到其他窗口上方
-        self.login_window.activateWindow()  # 激活为当前活动窗口
+        self.api_saver_window.raise_()  # 提升到其他窗口上方
+        self.api_saver_window.activateWindow()  # 激活为当前活动窗口
 
         # QMessageBox.information(self, "登录", "登录窗口弹出（未实现）")
-
-    def show_register_window(self):
-        if not self.have_register_window:
-            self.register_window = RegisterWindow(self)
-            self.register_window.show()
-            self.have_register_window = True
-        # 1. 取消最小化（恢复正常大小）
-        self.register_window.setWindowState(
-            self.register_window.windowState() & ~Qt.WindowMinimized | Qt.WindowActive
-        )
-
-        # 2. 置顶显示
-        self.register_window.raise_()  # 提升到其他窗口上方
-        self.register_window.activateWindow()  # 激活为当前活动窗口
-
-        # QMessageBox.information(self, "注册", "注册窗口弹出（未实现）")
 
     def create_debug_window(self):
         chat_widget = QWidget()

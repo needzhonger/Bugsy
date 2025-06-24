@@ -1,7 +1,9 @@
 # 常规库
+# python:3.11及以上
 PySide6
 python-dotenv
 colorama
+camel-ai
 # markdown
 # pygments
 # bleach
@@ -10,10 +12,18 @@ colorama
 mdx-truly-sane-lists
 mdx-breakless-lists
 mysql-connector-python
+qdrant-client
+unstructured
+libmagic
+python-magic-bin # 非Windows请手动执行pip install python-magic
+python-docx
+pymupdf
+sentence-transformers
 
 # 从 GitHub 安装 camel（固定 main 分支）
-git+https://github.com/camel-ai/camel.git#egg=camel-ai
+# git+https://github.com/camel-ai/camel.git#egg=camel-ai
 
+# 科学上网，以下语句会自动下载embedding模型:
 
 # 需要安装的库（最新版）
 python:3.11及以上

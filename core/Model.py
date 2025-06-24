@@ -4,9 +4,15 @@ from dotenv import load_dotenv
 import os
 
 # 加载 API Key
-# load_dotenv(dotenv_path="API_KEY.env")
-# API_KEY = os.getenv("API_KEY")
-API_KEY = "sk-vuigflksccgkzuqiqjrjzchnnsydsxyxcbqoovxgdqejhuas"
+# 获取当前脚本文件所在目录（也就是 core/）
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 拼接出 API_KEY.env 的绝对路径
+env_path = os.path.join(script_dir, "API_KEY.env")
+
+# 加载 .env 文件
+load_dotenv(dotenv_path=env_path)
+API_KEY = os.getenv("API_KEY")
 print(f"API_KEY:{API_KEY}")
 
 # 处理文本的模型
