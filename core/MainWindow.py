@@ -766,6 +766,8 @@ class MainWindow(QMainWindow):
         if text:
             input_box.clear()
             try:
+                if chat_list.id == 3:
+                    chat_list.rag_query = self.rag_storage.query(text)
                 chat_list.receive_message(text)
             except:
                 chat_list.show_API_error()

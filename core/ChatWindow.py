@@ -37,7 +37,7 @@ class ChatList(QTextEdit):
         self.setReadOnly(True)
         self.setAcceptRichText(True)
 
-        # 新增：存储所有消息内容和当前AI响应内容
+        # 存储所有消息内容和当前AI响应内容
         self.all_messages = []  # 存储所有消息 {sender, content}
         self.current_ai_content = ""  # 当前AI响应累积的内容
 
@@ -224,6 +224,8 @@ class ChatList(QTextEdit):
         elif self.id == 2:  # 图片处理窗口:图片、问题、是否是路径
             Signals.instance().send_message_to_image_agent(self.img_path, user_message)
         else:  # rag窗口
+            # TODO:整合self.rag_query的查询结果
+            print(self.rag_query) #用于调试查询结果
             Signals.instance().send_message_to_rag_agent(user_message)
 
     def update_ai_response(self, content: str):
@@ -311,4 +313,7 @@ class ChatList(QTextEdit):
 
     def show_API_error(self):
         # 在API错误时在聊天框中显示“API错误”的提醒
+        if self.has_typing_indicator:
+            self._remove_typing_indicator()
+        self._enable_user_input()
         QMessageBox.warning(self, "警告", "API错误")

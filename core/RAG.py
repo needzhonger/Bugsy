@@ -56,9 +56,9 @@ class RAGStorage:
                 metadata_filename=content_input_path,
                 chunker=self.chunker,  # 使用自定义分块器
             )
-            QMessageBox.information(self, "通知", "文件处理完成")
+            QMessageBox.information(None, "操作成功", "文件处理完成")
         else:
-            QMessageBox.warning(self, "警告", f"不支持的文件类型: {content_input_path}")
+            QMessageBox.warning(None, "警告", f"不支持的文件类型: {content_input_path}")
 
     def process_url(self, path):
         """读取网址"""
@@ -76,7 +76,7 @@ class RAGStorage:
         result = self.vr.query(query, self.top_k, self.similarity_threshold)
         return self.to_readable(result)
 
-    def to_readable(self, results):
+    def to_readable(self, results)->str:
         if not results:
             return "未找到相关信息"
 
@@ -84,14 +84,9 @@ class RAGStorage:
         for result in results:
             text = result.get("text", "")
             if text[:39] == "No suitable information retrieved from ":
-                return "没有相关文件"
-            source = result.get("extra_info", {}).get("source", "未知文件")
-            readable.append(
-                f"【文件来源】{source}\n"
-                f"【相关内容】\n{text}\n"
-                f"【匹配度】{float(result.get('similarity score', 0)):.2f}\n"
-                "-----"
-            )
+                return "未找到相关信息"
+            # source = result.get("extra_info", {}).get("source", "未知文件")
+            readable.append(text)
         return "\n".join(readable)
 
 
