@@ -12,6 +12,7 @@ def extract_text_auto(file_path):
 	:param file_path: 文件路径
 	:return: 文本内容
 	"""
+
 	# 检测文件类型
 	mime = magic.Magic(mime=True)
 	file_type = mime.from_file(file_path)

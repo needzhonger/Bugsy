@@ -14,6 +14,7 @@ class StreamWorker(QThread):
         self.id = id
 
     def run(self):
+        print("in Agent1")
         api_url = f"{self._model._url}/v1/chat/completions"
         headers = {
             "Authorization": f"Bearer {self._model._api_key}",

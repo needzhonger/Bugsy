@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7dc1dfe-c697-45d7-bab2-f667270f13e5" name="更改" comment="" />
+    <list default="true" id="e7dc1dfe-c697-45d7-bab2-f667270f13e5" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PkgExplorerPlugin.dll.log" beforeDir="false" afterPath="$PROJECT_DIR$/PkgExplorerPlugin.dll.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/Agent_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/Agent_1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/Agent_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/Agent_2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/FileReader.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/FileReader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/MainWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -41,6 +50,8 @@
     "Python.run_Bugsy.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "wip",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -71,7 +82,8 @@
       <option name="presentableId" value="Default" />
       <updated>1750681540998</updated>
       <workItem from="1750681542183" duration="14198000" />
-      <workItem from="1750771218387" duration="8600000" />
+      <workItem from="1750771218387" duration="9261000" />
+      <workItem from="1750854508976" duration="8091000" />
     </task>
     <servers />
   </component>
@@ -83,6 +95,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Bugsy$MainWindow.coverage" NAME="MainWindow 覆盖结果" MODIFIED="1750685940619" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core" />
-    <SUITE FILE_PATH="coverage/Bugsy$run_Bugsy.coverage" NAME="run_Bugsy 覆盖结果" MODIFIED="1750779627128" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Bugsy$run_Bugsy.coverage" NAME="run_Bugsy 覆盖结果" MODIFIED="1750862168209" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

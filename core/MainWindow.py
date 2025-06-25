@@ -4,6 +4,7 @@ from .Signals import Signals
 from .ChatWindow import ChatList
 from .FontSetting import set_font
 from .Agent_1 import MyChatAgent
+from .Agent_2 import StructuredAgent
 from .ImageAgent import ImageAgent
 from .Model import model, vision_model
 from functools import partial
@@ -16,14 +17,15 @@ log = logging.getLogger(__name__)
 
 
 class AgentInitializer(QThread):
-    agents_ready = Signal(object, object, object)  # chat_agent, image_agent
+    agents_ready = Signal(object, object, object, object)  # chat_agent, image_agent
 
     def run(self):
         # 在子线程中执行耗时初始化
         chat_agent = MyChatAgent(model=model)
+        structured_agent = StructuredAgent(model=model)
         image_agent = ImageAgent(vision_model)
         rag_storage = RAGStorage(similarity_threshold=0.6, top_k=1)
-        self.agents_ready.emit(chat_agent, image_agent, rag_storage)
+        self.agents_ready.emit(chat_agent, structured_agent, image_agent, rag_storage)
 
 
 class MainWindow(QMainWindow):
@@ -52,6 +54,7 @@ class MainWindow(QMainWindow):
 
         # 设置空变量等待赋值
         self.chat_agent = None
+        self.structured_agent = None
         self.image_agent = None
         self.rag_storage = None
 
@@ -65,6 +68,7 @@ class MainWindow(QMainWindow):
 
     def refresh(self, _model, _vision_model):
         self.chat_agent = MyChatAgent(_model)
+        self.structured_agent = StructuredAgent(model=model)
         self.image_agent = ImageAgent(_vision_model)
         # 断开已有信号连接
         try:
@@ -91,7 +95,7 @@ class MainWindow(QMainWindow):
             lambda x: self.chat_agent.receive_message(x, 1)
         )
         Signals.instance().to_debug_agent_signal.connect(
-            lambda x: self.chat_agent.receive_message(x, 0)
+            lambda x: self.structured_agent.receive_message(x, 0)
         )
         Signals.instance().to_image_agent_signal.connect(
             lambda img, question: self.image_agent.receive_message(img, question)
@@ -102,8 +106,9 @@ class MainWindow(QMainWindow):
         self.loading_label.setVisible(False)
         self.main_content_widget.setVisible(True)
 
-    def on_agents_ready(self, chat_agent, image_agent, rag_storage: RAGStorage):
+    def on_agents_ready(self, chat_agent, structured_agent, image_agent, rag_storage: RAGStorage):
         self.chat_agent = chat_agent
+        self.structured_agent = structured_agent
         self.image_agent = image_agent
         self.rag_storage = rag_storage
 
@@ -112,7 +117,7 @@ class MainWindow(QMainWindow):
             lambda x: self.chat_agent.receive_message(x, 1)
         )
         Signals.instance().to_debug_agent_signal.connect(
-            lambda x: self.chat_agent.receive_message(x, 0)
+            lambda x: self.structured_agent.receive_message(x, 0)
         )
         Signals.instance().to_image_agent_signal.connect(
             lambda img_path, question: self.image_agent.receive_message(
@@ -260,10 +265,10 @@ class MainWindow(QMainWindow):
         layout.addWidget(chat_list)
 
         # 输入文本框
-        input_box = QTextEdit()
-        input_box.setMaximumHeight(100)
-        set_font(input_box)
-        input_box.setStyleSheet(
+        input_box_1 = QTextEdit()
+        input_box_1.setMaximumHeight(100)
+        set_font(input_box_1)
+        input_box_1.setStyleSheet(
             """
 								            QTextEdit {
 								                background: transparent;
@@ -273,8 +278,30 @@ class MainWindow(QMainWindow):
 								            }
 								        """
         )
-        layout.addWidget(input_box)
+        input_box_1.setPlaceholderText("请在此处输入题目...")
 
+        # 输入文本框
+        input_box_2 = QTextEdit()
+        input_box_2.setMaximumHeight(100)
+        set_font(input_box_2)
+        input_box_2.setStyleSheet(
+            """
+                                            QTextEdit {
+                                                background: transparent;
+                                                border: none;
+                                                border-radius: 5px;
+                                                padding: 5px;
+                                            }
+                                        """
+        )
+        input_box_2.setPlaceholderText("请在此处输入代码...")
+
+        inner_layout = QHBoxLayout()
+        layout.addLayout(inner_layout)
+        inner_layout.addWidget(input_box_1)
+        inner_layout.addWidget(input_box_2)
+
+        input_box = (input_box_1, input_box_2)
         # 发送按钮
         send_btn = QPushButton("发送")
         send_btn.setFixedSize(100, 30)
@@ -297,7 +324,7 @@ class MainWindow(QMainWindow):
 						}
 						"""
         )
-        send_btn.clicked.connect(partial(self.send_message, input_box, chat_list))
+        send_btn.clicked.connect(partial(self.send_structured_message, input_box, chat_list))
         layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
         return chat_widget, input_box, chat_list
 
@@ -361,6 +388,7 @@ class MainWindow(QMainWindow):
 								        """
         )
         layout.addWidget(input_box)
+        input_box.setPlaceholderText("请在此处输入问题描述...")
 
         # 发送按钮
         send_btn = QPushButton("发送")
@@ -447,6 +475,7 @@ class MainWindow(QMainWindow):
 								            }
 								        """
         )
+        input_box.setPlaceholderText("请在此处输入问题描述...")
         layout.addWidget(input_box)
 
         # 发送按钮+图片选择
@@ -598,6 +627,7 @@ class MainWindow(QMainWindow):
 								            }
 								        """
         )
+        input_box.setPlaceholderText("请在此处输入问题描述...")
         layout.addWidget(input_box)
 
         # 发送按钮
@@ -733,7 +763,11 @@ class MainWindow(QMainWindow):
             if name in self.chat_lists:
                 self.chat_lists[name].clear()  # 调用 QListWidget 的 clear 方法
             if name in self.chat_inputs:
-                self.chat_inputs[name].clear()
+                if isinstance(self.chat_inputs[name], tuple):
+                    for box in self.chat_inputs[name]:
+                        box.clear()
+                else :
+                    self.chat_inputs[name].clear()
         else:
             print(f"MainWindow @ navigate_to: 错误：未知页面 {name}!")
 
@@ -769,6 +803,33 @@ class MainWindow(QMainWindow):
                 if chat_list.id == 3:
                     chat_list.rag_query = self.rag_storage.query(text)
                 chat_list.receive_message(text)
+            except:
+                chat_list.show_API_error()
+                return
+
+    def send_structured_message(self, input_box: tuple, chat_list: ChatList):
+        question = input_box[0].toPlainText().strip()
+        code = input_box[1].toPlainText().strip()
+        if question and code:
+            input_box[0].clear()
+            input_box[1].clear()
+            prompt = f"""
+我正在做如下cpp编程题：
+
+{question}
+
+以下是我写的代码：
+
+{code}
+
+请按以下四个方面分析并输出：
+1. 对题目的分析
+2. 我的错误代码的问题
+3. 正确的代码
+4. 两组测试数据（含输入、原代码输出和期望输出）
+"""
+            try:
+                chat_list.receive_message(prompt)
             except:
                 chat_list.show_API_error()
                 return

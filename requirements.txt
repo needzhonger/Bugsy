@@ -1,14 +1,9 @@
 # 常规库
 # python:3.11及以上
-PySide6
-python-dotenv
-colorama
+PySide6~=6.9.1
+python-dotenv~=1.1.0
+colorama~=0.4.6
 camel-ai
-# markdown
-# pygments
-# bleach
-# beautifulsoup4
-# tinycss2
 mdx-truly-sane-lists
 mdx-breakless-lists
 mysql-connector-python
@@ -16,27 +11,15 @@ qdrant-client
 unstructured
 libmagic
 python-magic-bin # 非Windows请手动执行pip install python-magic
-python-docx
+python-docx~=1.2.0
 pymupdf
 sentence-transformers
+requests~=2.32.4
+pillow~=10.4.0
+pydantic~=2.11.7
+markdown~=3.8.2
 
 # 从 GitHub 安装 camel（固定 main 分支）
 # git+https://github.com/camel-ai/camel.git#egg=camel-ai
 
 # 科学上网，以下语句会自动下载embedding模型:
-
-# 需要安装的库（最新版）
-python:3.11及以上
-pip install camel-ai
-pip install PySide6
-pip install python-dotenv
-pip install qdrant-client
-pip install unstructured
-pip install libmagic
-pip install python-magic #非windows用
-pip install python-magic-bin  
-pip install python-docx
-pip install pymupdf
-pip install mysql-connector-python
-pip install sentence-transformers
-pip install markdown
