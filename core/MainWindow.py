@@ -278,7 +278,7 @@ class MainWindow(QMainWindow):
 								            }
 								        """
         )
-        input_box_1.setPlaceholderText("请在此处输入题目...")
+        input_box_1.setPlaceholderText("请在此处粘贴题目...")
 
         # 输入文本框
         input_box_2 = QTextEdit()
@@ -294,14 +294,33 @@ class MainWindow(QMainWindow):
                                             }
                                         """
         )
-        input_box_2.setPlaceholderText("请在此处输入代码...")
+        input_box_2.setPlaceholderText("请在此处粘贴代码...")
+
+        # 输入文本框
+        input_box_3 = QTextEdit()
+        input_box_3.setMaximumHeight(100)
+        set_font(input_box_3)
+        input_box_3.setStyleSheet(
+            """
+                                            QTextEdit {
+                                                background: transparent;
+                                                border: none;
+                                                border-radius: 5px;
+                                                padding: 5px;
+                                            }
+                                        """
+        )
+        input_box_3.setPlaceholderText("请在此处输入编程语言(C++、Python、Java)...")
 
         inner_layout = QHBoxLayout()
         layout.addLayout(inner_layout)
         inner_layout.addWidget(input_box_1)
         inner_layout.addWidget(input_box_2)
+        inner_layout.addWidget(input_box_3)
 
-        input_box = (input_box_1, input_box_2)
+
+
+        input_box = (input_box_1, input_box_2, input_box_3)
         # 发送按钮
         send_btn = QPushButton("发送")
         send_btn.setFixedSize(100, 30)
@@ -810,11 +829,17 @@ class MainWindow(QMainWindow):
     def send_structured_message(self, input_box: tuple, chat_list: ChatList):
         question = input_box[0].toPlainText().strip()
         code = input_box[1].toPlainText().strip()
+        lang = input_box[2].toPlainText().strip()
         if question and code:
             input_box[0].clear()
             input_box[1].clear()
+            input_box[2].clear()
+            lang = lang.lower()
+            if not (lang == "c++" or lang == "java" or lang == "python" or lang == "cpp" or lang == "c" or lang == "javascript" or lang == "c#"):
+                chat_list.get_ai_response(data_list = ["目前", "不", "支持", "debug", f"{lang}", "语言"])
+                return
             prompt = f"""
-我正在做如下cpp编程题：
+我正在做如下{lang}编程题：
 
 {question}
 
