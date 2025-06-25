@@ -11,13 +11,13 @@ class RAGStorage:
     """用于RAG"""
 
     def __init__(
-            self,
-            model_name="BAAI/bge-small-zh-v1.5",
-            collection_name="RAG_files_collection",
-            path="RAG_files",
-            similarity_threshold=0.5,
-            top_k=1,
-            chunker=None
+        self,
+        model_name="BAAI/bge-small-zh-v1.5",
+        collection_name="RAG_files_collection",
+        path="RAG_files",
+        similarity_threshold=0.5,
+        top_k=1,
+        chunker=None,
     ):
         """
         :param collection_name: collection的地址
@@ -45,6 +45,7 @@ class RAGStorage:
 
     def process_file(self, content_input_path):
         """读取文件内容，支持txt,pdf,docx，仅支持文本"""
+        print(f"RAG开始处理:{content_input_path}")
         success, raw_text = extract_text_auto(content_input_path)
         if success:
             self.vr.process(
@@ -55,9 +56,9 @@ class RAGStorage:
                 metadata_filename=content_input_path,
                 chunker=self.chunker,  # 使用自定义分块器
             )
+            QMessageBox.information(self, "通知", "文件处理完成")
         else:
-            # TODO:与前端连接
-            log.error(f"不支持的文件类型: {content_input_path}")
+            QMessageBox.warning(self, "警告", f"不支持的文件类型: {content_input_path}")
 
     def process_url(self, path):
         """读取网址"""
@@ -94,18 +95,22 @@ class RAGStorage:
         return "\n".join(readable)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     rag_storage = RAGStorage(similarity_threshold=0.6, top_k=1)
 
     while True:
         order = input("\n添加文件:1    添加网址:2    搜索已添加的内容:3\n")
-        if order == '1':
-            content_path = input("Provide the path to our content input (can be a file or URL)\n")
+        if order == "1":
+            content_path = input(
+                "Provide the path to our content input (can be a file or URL)\n"
+            )
             rag_storage.process_file(content_path)
-        elif order == '2':
-            content_path = input("Provide the path to our content input (can be a file or URL)\n")
+        elif order == "2":
+            content_path = input(
+                "Provide the path to our content input (can be a file or URL)\n"
+            )
             rag_storage.process_url(content_path)
-        elif order == '3':
+        elif order == "3":
             qry = input("Specify your query\n")
             print(rag_storage.query(qry))
         else:

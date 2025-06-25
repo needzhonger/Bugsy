@@ -14,6 +14,7 @@ from tkinter import filedialog
 
 log = logging.getLogger(__name__)
 
+
 class AgentInitializer(QThread):
     agents_ready = Signal(object, object, object)  # chat_agent, image_agent
 
@@ -93,9 +94,7 @@ class MainWindow(QMainWindow):
             lambda x: self.chat_agent.receive_message(x, 0)
         )
         Signals.instance().to_image_agent_signal.connect(
-            lambda img, question: self.image_agent.receive_message(
-                img, question
-            )
+            lambda img, question: self.image_agent.receive_message(img, question)
         )
         Signals.instance().to_rag_agent_signal.connect(
             lambda x: self.chat_agent.receive_message(x, 3)
@@ -103,7 +102,7 @@ class MainWindow(QMainWindow):
         self.loading_label.setVisible(False)
         self.main_content_widget.setVisible(True)
 
-    def on_agents_ready(self, chat_agent, image_agent, rag_storage):
+    def on_agents_ready(self, chat_agent, image_agent, rag_storage: RAGStorage):
         self.chat_agent = chat_agent
         self.image_agent = image_agent
         self.rag_storage = rag_storage
@@ -116,8 +115,8 @@ class MainWindow(QMainWindow):
             lambda x: self.chat_agent.receive_message(x, 0)
         )
         Signals.instance().to_image_agent_signal.connect(
-            lambda img, question, is_path: self.image_agent.receive_message(
-                img, question, is_path
+            lambda img_path, question: self.image_agent.receive_message(
+                img_path, question
             )
         )
         Signals.instance().to_rag_agent_signal.connect(
@@ -341,7 +340,7 @@ class MainWindow(QMainWindow):
 
         chat_list = ChatList(1)
 
-        # 连接AI信号 TODO
+        # 连接AI信号
         Signals.instance().chat_agent_response_signal.connect(
             lambda message: chat_list.get_ai_response(message)
         )
@@ -517,7 +516,6 @@ class MainWindow(QMainWindow):
                 self.send_message,
                 input_box,
                 chat_list,
-                img_path=self.img_path_edit.text(),
             )
         )
         bottom_layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
@@ -603,6 +601,37 @@ class MainWindow(QMainWindow):
         layout.addWidget(input_box)
 
         # 发送按钮
+        bottom_layout = QHBoxLayout()
+        bottom_layout.setSpacing(0)
+        layout.addLayout(bottom_layout)
+
+        spacer = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        bottom_layout.addItem(spacer)
+
+        img_btn = QPushButton("选择要解析的文件(支持txt,pdf,docx)")
+        img_btn.setFixedHeight(35)
+        img_btn.setStyleSheet(
+            """
+		                QPushButton {
+		                    background-color: transparent;
+		                    border: 1px solid palette(mid);
+		                    border-radius: 4px;
+		                    padding: 0px;
+		                    text-align: center;
+		                }
+		                QPushButton:hover {
+		                    background-color: palette(midlight); /*轻微高亮*/
+		                    border-radius: 4px;
+		                }
+		                QPushButton:pressed {
+							background-color: palette(mid);
+						}
+		            """
+        )
+        set_font(img_btn)
+        img_btn.clicked.connect(self.select_file_path)
+        bottom_layout.addWidget(img_btn)
+
         send_btn = QPushButton("发送")
         send_btn.setFixedSize(100, 30)
         set_font(send_btn)
@@ -625,8 +654,31 @@ class MainWindow(QMainWindow):
 						"""
         )
         send_btn.clicked.connect(partial(self.send_message, input_box, chat_list))
-        layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        bottom_layout.addWidget(send_btn)
         return chat_widget, input_box, chat_list
+
+    def select_file_path(self):
+        """选择文件（仅支持 TXT、PDF、DOCX）"""
+        if sys.platform == "darwin":  # macOS
+            file_filter = "All Supported Files (*.txt *.pdf *.docx);;Text Files (*.txt);;PDF Files (*.pdf);;Word Documents (*.docx)"
+            file_path, _ = QFileDialog.getOpenFileName(
+                self, "选择文件", "", file_filter
+            )
+        else:  # Windows/Linux
+            root = tk.Tk()
+            root.withdraw()
+            file_path = filedialog.askopenfilename(
+                title="选择文件",
+                filetypes=[
+                    ("所有支持的文件", "*.txt *.pdf *.docx"),
+                    ("文本文件", "*.txt"),
+                    ("PDF文件", "*.pdf"),
+                    ("Word文档", "*.docx"),
+                ],
+            )
+        if file_path:
+            # 直接处理
+            self.rag_storage.process_file(file_path)
 
     def setup_chatting_window(self):
         """
@@ -706,15 +758,15 @@ class MainWindow(QMainWindow):
 
         self.animations["sidebar"].start()
 
-    def send_message(self, input_box, chat_list: ChatList, img_path=None):
+    def send_message(self, input_box, chat_list: ChatList):
         # print("in send_message!")
         text = input_box.toPlainText().strip()
+        if chat_list.id == 2:
+            chat_list.img_path = self.img_path_edit.text()
         if text:
             input_box.clear()
-            try :
+            try:
                 chat_list.receive_message(text)
-            except :
+            except:
                 chat_list.show_API_error()
                 return
-        if not img_path is None:
-            chat_list.img_path = img_path

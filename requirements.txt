@@ -33,8 +33,8 @@ pip install python-dotenv
 pip install qdrant-client
 pip install unstructured
 pip install libmagic
-pip install python-magic # 非Windows用
-pip install python-magic-bin  # Windows 专用二进制依赖
+pip install python-magic #非windows用
+pip install python-magic-bin  
 pip install python-docx
 pip install pymupdf
 pip install mysql-connector-python

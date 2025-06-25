@@ -310,5 +310,5 @@ class ChatList(QTextEdit):
                 break
 
     def show_API_error(self):
-        #TODO 在API错误时在聊天框中显示“API错误”的提醒
-        pass
+        # 在API错误时在聊天框中显示“API错误”的提醒
+        QMessageBox.warning(self, "警告", "API错误")

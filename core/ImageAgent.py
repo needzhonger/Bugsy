@@ -2,6 +2,7 @@ from .common import *
 from PIL import Image
 from .Signals import Signals
 
+
 class ImageWorker(QThread):
     result_ready = Signal(list)
 
@@ -26,13 +27,17 @@ class ImageWorker(QThread):
         response = chat_agent.step(image_msg)
 
         if response and response.msgs:
+            print(response.msgs[0].content)
             result.append(response.msgs[0].content)
         else:
+            print("未能获取到有效的回复。")
             result.append("未能获取到有效的回复。")
             if response and response.info:
+                print(response.info)
                 result.append(response.info)
 
         self.result_ready.emit(result)
+
 
 class ImageAgent:
     """图像识别"""
@@ -50,19 +55,18 @@ class ImageAgent:
     def image_analysis(self, image, question):
         """image是Image解析后的形式"""
         self.worker = ImageWorker(self.model, image, question)
-        self.worker.result_ready.connect(self.send_result)
+        self.worker.result_ready.connect(lambda x: self.send_result(x))
         self.worker.start()
 
     def receive_message(self, img, question):
         """从前端接收信息"""
+        print(f"ImageAgent开始处理:图片地址:{img};问题:{question}")
         image = Image.open(img)
-        print(f"ImageAgent开始处理:图片尺寸:{image.size};问题:{question}")
         self.image_analysis(image, question)
 
-    def send_result(self):
+    def send_result(self, result):
         print("ImageAgent向ChatWindow发送结果")
-        Signals.instance().send_image_agent_response(self.result)
-        self.result.clear()
+        Signals.instance().send_image_agent_response(result)
 
 
 # 用法示例:
