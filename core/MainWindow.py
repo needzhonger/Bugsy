@@ -833,7 +833,6 @@ class MainWindow(QMainWindow):
         if question and code:
             input_box[0].clear()
             input_box[1].clear()
-            input_box[2].clear()
             lang = lang.lower()
             if not (lang == "c++" or lang == "java" or lang == "python" or lang == "cpp" or lang == "c" or lang == "javascript" or lang == "c#"):
                 chat_list.get_ai_response(data_list = ["目前", "不", "支持", "debug", f"{lang}", "语言"])
