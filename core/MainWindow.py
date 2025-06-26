@@ -830,7 +830,7 @@ class MainWindow(QMainWindow):
         question = input_box[0].toPlainText().strip()
         code = input_box[1].toPlainText().strip()
         lang = input_box[2].toPlainText().strip()
-        if question and code:
+        if question and code and lang :
             input_box[0].clear()
             input_box[1].clear()
             lang = lang.lower()

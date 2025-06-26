@@ -15,8 +15,14 @@ def load_api_key():
     load_dotenv(dotenv_path=env_path, override=True)
     return os.getenv("API_KEY")
 
+def decode(api_key):
+    res = ""
+    for i in api_key :
+        res += chr(ord(i) - 3)
+    return res
 def init_models():
     api_key = load_api_key()
+    api_key = decode(api_key)
     print(f"设置API_KEY为: {api_key}")
 
     _model = ModelFactory.create(

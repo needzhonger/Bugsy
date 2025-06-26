@@ -8,6 +8,11 @@ class ModelLoaderThread(QThread):
         new_model, new_image_model = init_models()  # 子线程中执行耗时操作
         self.done.emit(new_model, new_image_model)  # 通知主线程
 
+def encode(api_key):
+    res = ""
+    for i in api_key :
+        res += chr(ord(i) + 3)
+    return res
 class ApiKeySaver(QDialog):
     def __init__(self, parent=None):
         super().__init__()
@@ -32,7 +37,7 @@ class ApiKeySaver(QDialog):
 
     def save_api_key(self):
         api_key = self.input_field.text().strip()
-
+        api_key = encode(api_key)
         if not api_key:
             QMessageBox.warning(self, "错误", "请输入有效的 API KEY")
             return
