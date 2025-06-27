@@ -12,6 +12,7 @@ from core.api_saver import ApiKeySaver
 from .RAG import RAGStorage
 import tkinter as tk
 from tkinter import filedialog
+import re
 
 log = logging.getLogger(__name__)
 
@@ -106,7 +107,9 @@ class MainWindow(QMainWindow):
         self.loading_label.setVisible(False)
         self.main_content_widget.setVisible(True)
 
-    def on_agents_ready(self, chat_agent, structured_agent, image_agent, rag_storage: RAGStorage):
+    def on_agents_ready(
+        self, chat_agent, structured_agent, image_agent, rag_storage: RAGStorage
+    ):
         self.chat_agent = chat_agent
         self.structured_agent = structured_agent
         self.image_agent = image_agent
@@ -318,8 +321,6 @@ class MainWindow(QMainWindow):
         inner_layout.addWidget(input_box_2)
         inner_layout.addWidget(input_box_3)
 
-
-
         input_box = (input_box_1, input_box_2, input_box_3)
         # 发送按钮
         send_btn = QPushButton("发送")
@@ -343,7 +344,9 @@ class MainWindow(QMainWindow):
 						}
 						"""
         )
-        send_btn.clicked.connect(partial(self.send_structured_message, input_box, chat_list))
+        send_btn.clicked.connect(
+            partial(self.send_structured_message, input_box, chat_list)
+        )
         layout.addWidget(send_btn, alignment=Qt.AlignmentFlag.AlignRight)
         return chat_widget, input_box, chat_list
 
@@ -785,7 +788,7 @@ class MainWindow(QMainWindow):
                 if isinstance(self.chat_inputs[name], tuple):
                     for box in self.chat_inputs[name]:
                         box.clear()
-                else :
+                else:
                     self.chat_inputs[name].clear()
         else:
             print(f"MainWindow @ navigate_to: 错误：未知页面 {name}!")
@@ -811,12 +814,53 @@ class MainWindow(QMainWindow):
 
         self.animations["sidebar"].start()
 
+    def filter_sensitive_words(self, text, replacement="*"):
+        """
+        过滤编程和API调用领域的敏感词
+        """
+        # 默认敏感词列表（可根据需求扩展）
+        sensitive_words = [
+            # 安全相关
+            "api_key",
+            "secret_key",
+            "access_token",
+            "auth_token",
+            "password",
+            "credentials",
+            "private_key",
+            "bearer_token",
+            # 常见敏感操作
+            "eval",
+            "exec",
+            "pickle",
+            "marshal",
+            "os.system",
+            "subprocess",
+            "rm -rf",
+            "DROP TABLE",
+            "DELETE FROM",
+            "--",
+            "/*",
+            # 常见漏洞关键词
+            "sql_injection",
+            "xss",
+            "csrf",
+            "rce",
+            "lfi",
+        ]
+
+        for i in sensitive_words:
+            text = text.replace(i, replacement * len(i))
+
+        return text
+
     def send_message(self, input_box, chat_list: ChatList):
         # print("in send_message!")
         text = input_box.toPlainText().strip()
         if chat_list.id == 2:
             chat_list.img_path = self.img_path_edit.text()
         if text:
+            text = self.filter_sensitive_words(text)
             input_box.clear()
             try:
                 if chat_list.id == 3:
@@ -827,15 +871,25 @@ class MainWindow(QMainWindow):
                 return
 
     def send_structured_message(self, input_box: tuple, chat_list: ChatList):
-        question = input_box[0].toPlainText().strip()
-        code = input_box[1].toPlainText().strip()
-        lang = input_box[2].toPlainText().strip()
-        if question and code and lang :
+        question = self.filter_sensitive_words(input_box[0].toPlainText().strip())
+        code = self.filter_sensitive_words(input_box[1].toPlainText().strip())
+        lang = self.filter_sensitive_words(input_box[2].toPlainText().strip())
+        if question and code and lang:
             input_box[0].clear()
             input_box[1].clear()
             lang = lang.lower()
-            if not (lang == "c++" or lang == "java" or lang == "python" or lang == "cpp" or lang == "c" or lang == "javascript" or lang == "c#"):
-                chat_list.get_ai_response(data_list = ["目前", "不", "支持", "debug", f"{lang}", "语言"])
+            if not (
+                lang == "c++"
+                or lang == "java"
+                or lang == "python"
+                or lang == "cpp"
+                or lang == "c"
+                or lang == "javascript"
+                or lang == "c#"
+            ):
+                chat_list.get_ai_response(
+                    data_list=["目前", "不", "支持", "debug", f"{lang}", "语言"]
+                )
                 return
             prompt = f"""
 我正在做如下{lang}编程题：

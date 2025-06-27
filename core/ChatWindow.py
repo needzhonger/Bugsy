@@ -225,8 +225,13 @@ class ChatList(QTextEdit):
             Signals.instance().send_message_to_image_agent(self.img_path, user_message)
         else:  # rag窗口
             # TODO:整合self.rag_query的查询结果
-            print(self.rag_query) #用于调试查询结果
-            Signals.instance().send_message_to_rag_agent(user_message)
+            message = f"""
+                仅根据我提供的材料回答问题：
+                材料：{self.rag_query}
+                问题：{user_message}
+                """
+            print(message)
+            Signals.instance().send_message_to_rag_agent(message)
 
     def update_ai_response(self, content: str):
         """接收AI回答"""
