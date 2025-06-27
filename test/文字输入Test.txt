@@ -1,0 +1,4 @@
+为什么
+a, b = input().split()
+print(a+b)
+这段python代码不可以正确输出整数a和b的和？

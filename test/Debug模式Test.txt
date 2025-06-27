@@ -1,0 +1,13 @@
+输入两个整数，输出他们的和
+
+#include <iostream>
+
+using namespace std ;
+int main() {
+	int a, b;
+	cin >> a >> b ;
+	cout << a + b + 1 ;
+	return 0;
+}
+
+cpp
