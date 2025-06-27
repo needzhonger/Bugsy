@@ -32,7 +32,8 @@ class StreamWorker(QThread):
             "messages": messages,
             "stream": True,
             "max_tokens": 2000,
-            "temperature": 0.7,
+            "temperature": 0.2,
+            "top_p": 0.7,
         }
 
         try:
