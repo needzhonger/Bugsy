@@ -21,5 +21,3 @@ markdown~=3.8.2
 
 # 从 GitHub 安装 camel（固定 main 分支）
 # git+https://github.com/camel-ai/camel.git#egg=camel-ai
-
-# 科学上网，以下语句会自动下载embedding模型:
