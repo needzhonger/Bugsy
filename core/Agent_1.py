@@ -32,7 +32,7 @@ class StreamWorker(QThread):
             "messages": messages,
             "stream": True,
             "max_tokens": 2000,
-            "temperature": 0.2,
+            "temperature": 0.5,
             "top_p": 0.7,
         }
 
